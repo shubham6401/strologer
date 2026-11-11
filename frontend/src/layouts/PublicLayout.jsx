@@ -1,0 +1,18 @@
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+const PublicLayout = () => {
+  return (
+    <div className="min-h-screen flex flex-col bg-ivory-100 text-stone-900 font-sans selection:bg-gold-500 selection:text-white">
+      <Navbar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default PublicLayout;
