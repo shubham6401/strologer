@@ -407,3 +407,4 @@ exports.cancelBooking = async (req, res, next) => {
     next(error);
   }
 };
+

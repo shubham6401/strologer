@@ -24,3 +24,4 @@ router.post('/:id/review', submitReview);
 router.put('/:id/cancel', cancelBooking);
 
 module.exports = router;
+

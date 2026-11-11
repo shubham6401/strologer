@@ -29,6 +29,72 @@ async function runTests() {
     const health = await axios.get(`${BASE_URL}/health`);
     assert(health.status === 200 && health.data.status === 'healthy', 'Backend health check responds with 200');
 
+    // 1b. Executive Astrologer Signup
+    const uniqueExecEmail = `acharya.${Date.now()}@example.com`;
+    const execSignupRes = await axios.post(`${BASE_URL}/auth/executive/register`, {
+      name: 'Acharya Vidyadhar Shastri',
+      email: uniqueExecEmail,
+      phone: '+91 98888 11111',
+      password: 'SecretPassword@123',
+      title: 'Jyotish Shiromani',
+      experience: 14,
+      pricePerMinute: 32,
+      specializations: ['Kundli Analysis', 'Vastu Shastra', 'Vedic Muhurat'],
+      upiId: 'vidyadhar@upi',
+    });
+    assert(
+      execSignupRes.data.success && execSignupRes.data.user.role === 'EXECUTIVE',
+      'Executive Astrologer Signup succeeds with role EXECUTIVE'
+    );
+    assert(
+      execSignupRes.data.profile.pricePerMinute === 32 && execSignupRes.data.profile.upiId === 'vidyadhar@upi',
+      'Executive Astrologer Signup initializes independent pricing and UPI ID'
+    );
+
+    // 1c. Customer (Normal User) Signup
+    const uniqueUserEmail = `seeker.${Date.now()}@example.com`;
+    const userSignupRes = await axios.post(`${BASE_URL}/auth/user/register`, {
+      name: 'Anil Kumar Trivedi',
+      email: uniqueUserEmail,
+      phone: '+91 97777 22222',
+      password: 'SecretPassword@123',
+      dateOfBirth: '1993-06-21',
+      timeOfBirth: '07:45',
+      placeOfBirth: 'Prayagraj, Uttar Pradesh',
+      gender: 'male',
+    });
+    assert(
+      userSignupRes.data.success && userSignupRes.data.user.role === 'NORMAL_USER',
+      'Client (Normal User) Signup succeeds with role NORMAL_USER'
+    );
+    assert(
+      userSignupRes.data.user.birthDetails.placeOfBirth === 'Prayagraj, Uttar Pradesh',
+      'Client Signup stores birth coordinates for Kundli analysis'
+    );
+
+    // 1d. Signup Validation: Duplicate Email Check
+    try {
+      await axios.post(`${BASE_URL}/auth/executive/register`, {
+        name: 'Duplicate Acharya',
+        email: uniqueExecEmail,
+        phone: '+91 98888 11111',
+        password: 'SecretPassword@123',
+      });
+      assert(false, 'Duplicate email was incorrectly permitted');
+    } catch (err) {
+      assert(err.response?.status === 400, 'Duplicate email registration is blocked with 400 error');
+    }
+
+    // 1e. Signup Validation: Missing Fields Check
+    try {
+      await axios.post(`${BASE_URL}/auth/user/register`, {
+        name: 'Incomplete User',
+      });
+      assert(false, 'Missing required fields registration was incorrectly permitted');
+    } catch (err) {
+      assert(err.response?.status === 400, 'Incomplete registration is blocked with 400 error');
+    }
+
     // 2. Executive 1 Login
     const exec1Login = await axios.post(`${BASE_URL}/auth/executive/login`, {
       email: 'executive1@example.com',

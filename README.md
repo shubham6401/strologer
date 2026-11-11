@@ -1,88 +1,175 @@
-# Jyotishya Vani — Astrology Consultation & Booking Platform
+# Jyotishya Vani — Astrology Consultation & Booking Platform (Backend API)
 
-A full-stack commercial MERN platform engineered for authentic Vedic astrology consultations. The platform enables **Astrologers (Executives)** to independently control their per-minute fees, upload and manage dedicated UPI QR codes, manually verify bank statement receipts, and conduct 1-on-1 Zoom video consultations. **Seekers (Clients)** can explore verified Acharyas, choose tailored consultation durations, execute direct UPI payments, submit payment screenshots, and attend scheduled consultations with interactive duration tracking.
-
----
-
-## 1. System Architecture & Design Philosophy
-
-### Design Philosophy
-- **Authentic Indian Identity**: Warm ivory (`#FAF7F2`), cream, muted gold (`#C5A059`), deep maroon (`#6B1010`), and warm slate.
-- **Human-Crafted Elegance**: Playfair Display for headings and Inter for body text. Hand-crafted geometric Vedic motifs and clean borders without generic AI templates or unnecessary gradients.
-- **Administrative Precision**: Tables with responsive data layouts instead of repeated card widgets for management screens.
-- **Every Button Performs a Real Action**: No decorative dead controls.
-
-### Security & Role Isolation
-- **Strict Role-Based Access Control (RBAC)**: Distinct `EXECUTIVE` and `NORMAL_USER` roles validated cryptographically via JWT and MongoDB queries.
-- **IDOR Prevention**: Customers can never inspect other customers' private charts or bookings; executives can never view another executive's bookings or earnings.
-- **Snapshot Pricing Guarantee**: When a booking is initialized, the server freezes the astrologer's current per-minute rate into `pricePerMinuteSnapshot`. Subsequent pricing changes will not mutate existing bookings.
-- **Manual UPI Verification Workflow**: Fulfills the requirement that no payment is automatically verified upon upload. Astrologers inspect their UPI/banking statement before approving or rejecting with a clear reason.
-- **Session Duration Management**: Interactive timer with 5-minute and 1-minute expiration warnings, recognizing that standard Zoom rooms do not forcibly terminate calls.
+A standalone, production-quality Node.js, Express, and MongoDB REST API engineered for authentic Vedic astrology consultations. The system supports independent astrologer consultation fees, personal UPI QR management, manual transaction verification, and Zoom video consultation scheduling.
 
 ---
 
-## 2. Development Demo Credentials
+## 1. Authentication & Signup Options for Both Roles
 
-| Role | Name | Email | Password | Per-Minute Rate |
+The platform provides dedicated registration (signup) and authentication for exactly two primary user roles:
+1. **Executive Astrologer** (`EXECUTIVE`)
+2. **Normal User / Client** (`NORMAL_USER`)
+
+### A. Executive Astrologer Signup
+- **Endpoint**: `POST /api/auth/executive/register`
+- **Content-Type**: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "name": "Acharya Devavrata Sharma",
+    "email": "devavrata@example.com",
+    "phone": "+91 98888 77777",
+    "password": "Password@123",
+    "title": "Vedic Jyotish Acharya",
+    "experience": 18,
+    "pricePerMinute": 30,
+    "specializations": ["Kundli Milan", "Prashna Kundli", "Vedic Remedies"],
+    "qualifications": ["Jyotish Praveena", "Vedic Shastra Visharad"],
+    "languages": ["Hindi", "English"],
+    "upiId": "devavrata@upi",
+    "biography": "Over 18 years of classical Parashari Jyotish guidance."
+  }
+  ```
+- **Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Executive astrologer account registered successfully.",
+    "token": "eyJhbGciOiJIUzI1NiIsIn...",
+    "user": {
+      "id": "6af4cdc4e4b576d34fc8293e",
+      "name": "Acharya Devavrata Sharma",
+      "email": "devavrata@example.com",
+      "phone": "+91 98888 77777",
+      "role": "EXECUTIVE",
+      "profileImage": ""
+    },
+    "profile": {
+      "userId": "6af4cdc4e4b576d34fc8293e",
+      "title": "Vedic Jyotish Acharya",
+      "experience": 18,
+      "pricePerMinute": 30,
+      "upiId": "devavrata@upi",
+      "specialization": ["Kundli Milan", "Prashna Kundli", "Vedic Remedies"],
+      "availability": {
+        "isAvailable": true,
+        "workingDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "startTime": "10:00",
+        "endTime": "20:00",
+        "slotDurationMinutes": 30
+      }
+    }
+  }
+  ```
+
+---
+
+### B. Client (Customer) Signup
+- **Endpoint**: `POST /api/auth/user/register`
+- **Content-Type**: `application/json`
+- **Request Body**:
+  ```json
+  {
+    "name": "Rohit Verma",
+    "email": "rohit.verma@example.com",
+    "phone": "+91 97777 66666",
+    "password": "Password@123",
+    "dateOfBirth": "1992-04-18",
+    "timeOfBirth": "08:15",
+    "placeOfBirth": "Lucknow, Uttar Pradesh",
+    "gender": "male"
+  }
+  ```
+- **Response (`201 Created`)**:
+  ```json
+  {
+    "success": true,
+    "message": "Client account registered successfully. Welcome to Jyotishya Vani.",
+    "token": "eyJhbGciOiJIUzI1NiIsIn...",
+    "user": {
+      "id": "6af4cdc4e4b576d34fc82943",
+      "name": "Rohit Verma",
+      "email": "rohit.verma@example.com",
+      "phone": "+91 97777 66666",
+      "role": "NORMAL_USER",
+      "birthDetails": {
+        "dateOfBirth": "1992-04-18",
+        "timeOfBirth": "08:15",
+        "placeOfBirth": "Lucknow, Uttar Pradesh",
+        "gender": "male"
+      },
+      "profileImage": ""
+    }
+  }
+  ```
+
+---
+
+## 2. Pre-Seeded Development Accounts
+
+| Role | Name | Email | Password | Starting Rate |
 | :--- | :--- | :--- | :--- | :--- |
 | **Executive 1** | Pt. Radheshyam Mishra | `executive1@example.com` | `Pass@123` | ₹25 / min |
 | **Executive 2** | Dr. Ananya Vashistha | `executive2@example.com` | `Pass@123` | ₹35 / min |
-| **Client 1** | Vikramaditya Rathore | `user1@example.com` | `Pass@123` | — |
-| **Client 2** | Priya Sundaram | `user2@example.com` | `Pass@123` | — |
-
-> **Note**: Both login portals (`/executive/login` and `/login`) include **One-Click Demo Fill** buttons for immediate testing.
+| **Client 1** | Vikramaditya Rathore | `user1@example.com` | `Pass@123` | Kundli Data Included |
+| **Client 2** | Priya Sundaram | `user2@example.com` | `Pass@123` | Kundli Data Included |
 
 ---
 
-## 3. Implemented Capabilities
+## 3. Complete API Endpoint Reference
 
-### A. Public Astrology Website
-- **Navigation Bar**: Desktop and mobile responsive drawer with branding and auth detection.
-- **Hero Section**: Clear headline, consultation value proposition, duration calculator widget, and trust badges.
-- **About Section**: Classical Vedanga Jyotisha philosophy, ethics policy (zero fear-mongering), and credentials vetting.
-- **Services Catalog**: Kundli Analysis, Career Guidance, Marriage Compatibility, Kundli Milan, Vastu Shastra, Gemstones, Numerology, and Personal Consultation.
-- **Astrologers Directory**: Search by keyword/name, filter by specialization, filter by maximum price per minute, view detailed biographies, and book directly.
-- **How It Works**: 6-step visual guide detailing astrologer selection, duration selection, UPI payment, screenshot upload, manual verification, and Zoom session attendance.
-- **Testimonials & FAQ**: Client testimonials with ratings, and interactive FAQ accordion.
-- **Contact & Legal**: Interactive contact form, consultation desk details, Privacy Policy, and Terms of Service.
+### Authentication (`/api/auth`)
+- `POST /api/auth/executive/register`: Executive astrologer signup
+- `POST /api/auth/executive/login`: Executive astrologer login
+- `POST /api/auth/user/register`: Client (customer) signup
+- `POST /api/auth/user/login`: Client (customer) login
+- `POST /api/auth/forgot-password`: Generates password reset token
+- `POST /api/auth/reset-password`: Resets password using token
+- `GET /api/auth/me`: Fetches authenticated user profile & executive details (Protected)
+- `PUT /api/auth/me`: Updates profile and birth details (Protected)
 
-### B. Executive Astrologer Portal (`/executive/*`)
-1. **Overview Dashboard**: Verified gross revenue, net earnings, active scheduled sessions, pending verifications, immediate next session banner, and recent bookings table.
-2. **My Profile**: Profile photo upload, Acharya title, phone, biography, experience, specialization tags, credentials, and languages.
-3. **Consultation Pricing**: Independent per-minute fee input with live multi-duration calculation matrix (10m, 15m, 20m, 30m, 45m, 60m).
-4. **Payment QR Management**: Upload personal UPI QR code, preview, replace, remove, UPI ID (VPA), beneficiary name, and custom payment instructions.
-5. **Booking Requests Table**: Administrative table with status filters (Under Verification, Payment Pending, Scheduled, Completed, Rejected), search, and high-resolution inspection modal.
-6. **Manual Payment Verification Queue**: Review submitted payment receipts, view transaction UTR numbers, view enlarged screenshots, approve and record verification timestamp, or reject with a reason.
-7. **Scheduled Consultations**: Schedule meeting times for verified bookings, auto-calculate end times, generate Zoom meetings, conflict overlap prevention, reschedule sessions, and mark as completed with remedies.
-8. **Consultation History**: Past completed and cancelled sessions with audit trail, client ratings, and notes.
-9. **Earnings Ledger**: Verified gross payments vs net earnings (after 10% platform fee), monthly revenue ledger, and operational metrics.
-10. **Availability Settings**: Active consultation toggle, working days toggles (Mon-Sun), start/end times, and max bookings per day.
-11. **Zoom Video Settings**: Personal Zoom room URL, meeting passcode, and custom room instructions for clients.
-12. **Notification Center**: In-app notifications feed with unread badge counter, mark as read, and mark all as read.
+### Public Directory & Services (`/api/public`)
+- `GET /api/public/astrologers`: List approved astrologers (supports `search`, `specialization`, `maxPrice`)
+- `GET /api/public/astrologers/:id`: Single astrologer profile with ratings, pricing, and QR preview
+- `GET /api/public/services`: Full catalog of 9 Vedic consultation services
+- `POST /api/public/contact`: Submit consultation inquiry
 
-### C. Client Consultation Portal (`/dashboard/*` & `/payment/*`)
-1. **Client Dashboard**: Overview of scheduled appointments, active session timer, pending payments, and recent bookings.
-2. **Booking Workflow (`/book/:astrologerId`)**: Select duration (10, 15, 20, 30, 45, 60 mins), live price calculation, preferred date/time, consultation topic, problem description, and birth chart details (date, time, place of birth).
-3. **Payment Portal (`/payment/:bookingId`)**:
-   - Displays selected astrologer's dedicated UPI QR Code, UPI ID with one-click copy, and exact payable amount.
-   - Drag & drop / file picker payment screenshot upload (JPG, JPEG, PNG).
-   - Live screenshot preview and UTR reference number input.
-   - Status timeline: Created -> Proof Submitted -> Under Verification -> Payment Verified -> Scheduled -> Completed.
-   - Rejection notice display with astrologer's reason and one-click resubmission form.
-   - When scheduled: displays date, start time, end time, duration, Zoom meeting link, and live session countdown.
-4. **Consultation Timer (`ConsultationTimer.jsx`)**:
-   - Real-time countdown to session start.
-   - Join button activates 10 minutes prior to scheduled start.
-   - In-meeting timer showing minutes and seconds remaining with visual alert at <5 minutes and <1 minute.
-   - Time management policy notice explaining that Zoom links do not auto-disconnect participants.
-5. **My Bookings**: Full bookings table with status tabs and cancellation support.
-6. **Upcoming Consultations**: Dedicated view for scheduled video appointments.
-7. **Consultation History & Reviews**: Past sessions, executive notes, and 1 to 5 star rating modal with written review.
-8. **Birth Chart & Profile**: Maintain contact details and birth coordinates (date, time, place of birth) for Janam Patrika generation.
+### Customer Bookings (`/api/bookings`) — *Requires NORMAL_USER Token*
+- `POST /api/bookings`: Create booking (calculates amount from server-side price snapshot)
+- `GET /api/bookings/my-bookings`: List all customer bookings with status filter
+- `GET /api/bookings/:id`: Booking details, executive QR code, and Zoom link (time-window guarded)
+- `POST /api/bookings/:id/payment-proof`: Multipart upload of transaction screenshot (`screenshot` field)
+- `POST /api/bookings/:id/review`: Rate (1-5 stars) and review completed consultation
+- `PUT /api/bookings/:id/cancel`: Cancel pending booking
+
+### Executive Operations (`/api/executive`) — *Requires EXECUTIVE Token*
+- `GET /api/executive/profile`: Fetch current astrologer profile
+- `PUT /api/executive/profile`: Update biography, credentials, specializations, languages
+- `POST /api/executive/profile/photo`: Multipart upload of profile picture
+- `PUT /api/executive/pricing`: Independently update consultation fee per minute (₹)
+- `POST /api/executive/payment-qr`: Multipart upload of personal UPI QR code
+- `DELETE /api/executive/payment-qr`: Remove personal UPI QR code
+- `PUT /api/executive/payment-info`: Update UPI ID (VPA), name, and payment instructions
+- `GET /api/executive/bookings`: Comprehensive bookings list with search & filters
+- `GET /api/executive/bookings/:id`: Single booking detail with screenshot & customer Kundli details
+- `PUT /api/executive/bookings/:id/verify-payment`: Manually verify and confirm payment receipt
+- `PUT /api/executive/bookings/:id/reject-payment`: Reject payment proof with required reason
+- `PUT /api/executive/bookings/:id/schedule`: Schedule Zoom meeting (calculates end time = start + duration)
+- `PUT /api/executive/bookings/:id/reschedule`: Reschedule consultation with conflict prevention
+- `PUT /api/executive/bookings/:id/complete`: Conclude consultation with remedies notes
+- `PUT /api/executive/bookings/:id/cancel`: Cancel consultation with reason
+- `GET /api/executive/earnings`: Financial ledger (gross verified vs net earnings after 10% fee)
+- `PUT /api/executive/availability`: Toggle online status, working days, daily hours, slot length
+- `PUT /api/executive/zoom-settings`: Configure fallback personal Zoom room & passcode
+
+### Notifications (`/api/notifications`) — *Protected*
+- `GET /api/notifications`: Fetch user's in-app notifications & unread counter
+- `PUT /api/notifications/:id/read`: Mark single notification as read
+- `PUT /api/notifications/read-all`: Mark all notifications as read
 
 ---
 
-## 4. Folder Structure
+## 4. Backend Folder Structure
 
 ```
 strologer/
@@ -120,163 +207,27 @@ strologer/
 │   │   │   └── seedData.js           # Seed demo accounts and sample bookings
 │   │   └── server.js                 # Express server entry point
 │   ├── uploads/                      # Local disk storage for uploaded screenshots & QR
-│   ├── test-suite.js                 # Automated 30-assertion E2E test suite
+│   ├── test-suite.js                 # Automated 36-assertion E2E test suite
 │   ├── .env
 │   ├── .env.example
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx            # Responsive navigation bar
-│   │   │   ├── Footer.jsx            # Footnotes, lineage, legal links
-│   │   │   ├── ConsultationTimer.jsx # Live countdown and session timer
-│   │   │   ├── Modal.jsx             # Accessible modal component
-│   │   │   ├── StatusBadge.jsx       # Elegant status pills
-│   │   │   ├── IndianOrnament.jsx    # Traditional geometric motifs & dividers
-│   │   │   ├── NotificationBell.jsx  # Notification dropdown menu
-│   │   │   └── ProtectedRoute.jsx    # Role-based route guard
-│   │   ├── context/
-│   │   │   ├── AuthContext.jsx       # Authentication state management
-│   │   │   └── NotificationContext.jsx # Live notifications state
-│   │   ├── layouts/
-│   │   │   ├── PublicLayout.jsx      # Public wrapper
-│   │   │   ├── ExecutiveLayout.jsx   # Astrologer executive sidebar layout
-│   │   │   └── CustomerLayout.jsx    # Client sidebar layout
-│   │   ├── pages/
-│   │   │   ├── public/               # Home, About, Services, Astrologers, etc.
-│   │   │   ├── auth/                 # ExecutiveLogin/Signup, UserLogin/Signup, etc.
-│   │   │   ├── executive/            # Overview, Pricing, QR, Verification, etc.
-│   │   │   └── customer/             # Dashboard, Book, Payment, History, etc.
-│   │   ├── services/
-│   │   │   └── api.js                # Axios client with JWT interceptor
-│   │   ├── App.jsx                   # Central routing table
-│   │   ├── index.css                 # Tailwind base styles and scrollbars
-│   │   └── main.jsx
-│   ├── index.html                    # Fonts & meta
-│   ├── tailwind.config.js            # Custom color palette & typography
-│   ├── vite.config.js                # Vite config with API proxy
 │   └── package.json
 └── README.md
 ```
 
 ---
 
-## 5. Environment Variables & Setup
+## 5. How to Run Locally
 
-Create a `.env` file in the `backend/` directory:
-
-```env
-PORT=5001
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/strologer_db
-JWT_SECRET=strologer_jwt_super_secret_session_key_2026_production_ready
-JWT_EXPIRES_IN=30d
-CLIENT_URL=http://localhost:5173
-APP_NAME=Acharya Vedic Astrology Consultations
-
-# Cloudinary (Optional: automatically falls back to local disk storage in /uploads)
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-
-# Zoom Server-to-Server OAuth (Optional: falls back to Astrologer's personal Zoom room)
-ZOOM_ACCOUNT_ID=
-ZOOM_CLIENT_ID=
-ZOOM_CLIENT_SECRET=
-
-# SMTP Email (Optional: logs to console if left blank)
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_SECURE=false
-```
-
----
-
-## 6. How to Run Locally
-
-### Prerequisites
-- Node.js v18+ (Node v22+ tested)
-- MongoDB instance running locally on `mongodb://127.0.0.1:27017`
-
-### Step 1: Install Dependencies
+### Start Backend Server
 ```bash
-# Backend
 cd backend
 npm install
-
-# Frontend
-cd ../frontend
-npm install
+npm run seed      # Seeds demo accounts and sample bookings
+npm start         # Runs on http://localhost:5001
 ```
 
-### Step 2: Seed the Database
-Populates the two demo executives, two demo clients, and sample bookings in various stages:
-```bash
-cd backend
-npm run seed
-```
-
-### Step 3: Run Backend & Frontend Servers
-In terminal 1 (Backend):
-```bash
-cd backend
-npm start
-# Runs on http://localhost:5001
-```
-
-In terminal 2 (Frontend):
-```bash
-cd frontend
-npm run dev
-# Runs on http://localhost:5173
-```
-
-Open `http://localhost:5173` in your browser.
-
----
-
-## 7. Automated Test Suite Execution
-
-Run the complete 30-assertion end-to-end verification test suite:
+### Run Automated 36-Assertion Test Suite
 ```bash
 cd backend
 npm run seed && node test-suite.js
 ```
-
-### Test Suite Results:
-- Health check: 200 OK
-- Executive 1 & 2 Login & Authentication: JWT Issued
-- Customer 1 & 2 Login & Authentication: Role Enforced
-- Role-based Access Restriction: 403 Forbidden for Cross-Role Access
-- IDOR Customer Isolation: 404 on Foreign Booking
-- IDOR Executive Isolation: 404 on Foreign Booking
-- Pricing Independence: Exec 1 (₹25/min) vs Exec 2 (₹35/min)
-- Pricing Updates: Server Snapshot Preservation
-- Booking Calculation: `30 mins × ₹28/min = ₹840` exactly
-- Direct QR Code Delivery: Astrologer's specific QR displayed
-- Screenshot Upload & Status Progression: `UNDER_VERIFICATION`
-- Manual Payment Rejection: Rejection reason conveyed to client
-- Screenshot Resubmission: Successfully updated
-- Manual Payment Approval: Verification timestamp and notes stored
-- Automatic End Time Calculation: `scheduledEndTime = startTime + duration`
-- Overlapping Booking Conflict Prevention: Conflicting time blocked with 400 error
-- Completed Consultation Review: Rating and testimonial saved
-- In-App Notifications: Created and delivered for all events
-- **Total: 30 Passed, 0 Failed.**
-
----
-
-## 8. Production Deployment Instructions
-
-1. **Database**: Use MongoDB Atlas. Replace `MONGODB_URI` with your connection string.
-2. **File Storage**: Add Cloudinary API keys to `.env` (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) for persistent cloud storage.
-3. **Zoom Integration**: In the Zoom App Marketplace, create a **Server-to-Server OAuth** app, add meeting creation scopes, and populate `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, and `ZOOM_CLIENT_SECRET`.
-4. **Frontend Build**:
-   ```bash
-   cd frontend
-   npm run build
-   ```
-   Deploy the `frontend/dist` directory to Vercel, Netlify, or serve statically from the Express backend via `express.static()`.
-5. **Process Management**: Run the backend using `pm2 start src/server.js --name strologer-api`.

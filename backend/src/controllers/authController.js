@@ -15,7 +15,35 @@ const generateToken = (userId, role) => {
 // Executive Registration
 exports.executiveRegister = async (req, res, next) => {
   try {
-    const { name, email, phone, password, title, experience, pricePerMinute, specializations } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      title,
+      experience,
+      pricePerMinute,
+      specializations,
+      qualifications,
+      languages,
+      upiId,
+      upiName,
+      biography,
+    } = req.body;
+
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide full name, email, phone number, and password.',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long.',
+      });
+    }
 
     // Check if email exists
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
@@ -28,9 +56,9 @@ exports.executiveRegister = async (req, res, next) => {
 
     // Create user with EXECUTIVE role
     const user = await User.create({
-      name,
+      name: name.trim(),
       email: email.toLowerCase().trim(),
-      phone,
+      phone: phone.trim(),
       password,
       role: 'EXECUTIVE',
     });
@@ -39,18 +67,33 @@ exports.executiveRegister = async (req, res, next) => {
     const profile = await ExecutiveProfile.create({
       userId: user._id,
       title: title || 'Acharya',
+      biography: biography || 'Dedicated Vedic astrologer guiding seekers through authentic planetary wisdom and remedial measures.',
       experience: experience ? Number(experience) : 5,
       pricePerMinute: pricePerMinute ? Number(pricePerMinute) : 20,
+      upiId: upiId ? upiId.trim() : '',
+      upiName: upiName ? upiName.trim() : name.trim(),
       specialization: Array.isArray(specializations)
         ? specializations
+        : typeof specializations === 'string'
+        ? specializations.split(',').map((s) => s.trim()).filter(Boolean)
         : ['Kundli Analysis', 'Career Guidance', 'Marriage Consultation'],
+      qualifications: Array.isArray(qualifications)
+        ? qualifications
+        : typeof qualifications === 'string'
+        ? qualifications.split(',').map((q) => q.trim()).filter(Boolean)
+        : ['Jyotish Praveena', 'Vedic Shastra Visharad'],
+      languages: Array.isArray(languages)
+        ? languages
+        : typeof languages === 'string'
+        ? languages.split(',').map((l) => l.trim()).filter(Boolean)
+        : ['Hindi', 'English'],
     });
 
     const token = generateToken(user._id, user.role);
 
     res.status(201).json({
       success: true,
-      message: 'Executive account registered successfully.',
+      message: 'Executive astrologer account registered successfully.',
       token,
       user: {
         id: user._id,
@@ -131,6 +174,20 @@ exports.userRegister = async (req, res, next) => {
   try {
     const { name, email, phone, password, dateOfBirth, timeOfBirth, placeOfBirth, gender } = req.body;
 
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide full name, email, phone number, and password.',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long.',
+      });
+    }
+
     const existing = await User.findOne({ email: email.toLowerCase().trim() });
     if (existing) {
       return res.status(400).json({
@@ -140,9 +197,9 @@ exports.userRegister = async (req, res, next) => {
     }
 
     const user = await User.create({
-      name,
+      name: name.trim(),
       email: email.toLowerCase().trim(),
-      phone,
+      phone: phone.trim(),
       password,
       role: 'NORMAL_USER',
       birthDetails: {
@@ -157,7 +214,7 @@ exports.userRegister = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Account created successfully. Welcome to our astrology portal.',
+      message: 'Client account registered successfully. Welcome to Jyotishya Vani.',
       token,
       user: {
         id: user._id,
@@ -360,3 +417,4 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+

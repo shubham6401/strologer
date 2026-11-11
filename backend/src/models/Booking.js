@@ -166,3 +166,4 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.index({ executiveId: 1, scheduledStartTime: 1, scheduledEndTime: 1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);
+

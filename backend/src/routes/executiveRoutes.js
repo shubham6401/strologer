@@ -60,3 +60,4 @@ router.put('/availability', updateAvailability);
 router.put('/zoom-settings', updateZoomSettings);
 
 module.exports = router;
+
