@@ -3,53 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backend Testing Portal - Astrologer Consultation API</title>
+  <title>Astrology Platform - Backend Testing Portal</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
-      line-height: 1.6;
+      line-height: 1.5;
       color: #333;
     }
     h1, h2, h3 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     fieldset {
       margin-bottom: 20px;
-      padding: 15px;
+      padding: 14px;
       border: 1px solid #ccc;
-      max-width: 600px;
+      max-width: 820px;
     }
     legend {
       font-weight: bold;
-      padding: 0 5px;
+      padding: 0 4px;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     label {
       display: inline-block;
-      width: 180px;
+      width: 190px;
       vertical-align: top;
-      font-size: 14px;
+      font-size: 13.5px;
     }
     input, select, textarea {
       width: 320px;
-      padding: 6px;
-      font-size: 14px;
+      padding: 5px;
+      font-size: 13.5px;
     }
     button {
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 6px 14px;
+      font-size: 13.5px;
       cursor: pointer;
-      margin-right: 8px;
+      margin-right: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .top-bar {
+      max-width: 820px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7f7f7;
+      border: 1px solid #ccc;
+      padding: 10px 14px;
+      margin-bottom: 20px;
     }
     .status-msg {
-      margin-top: 10px;
-      padding: 10px;
-      max-width: 600px;
+      margin-top: 8px;
+      padding: 8px;
+      max-width: 820px;
       display: none;
-      font-size: 14px;
+      font-size: 13.5px;
     }
     .success {
       background-color: #d4edda;
@@ -61,159 +87,349 @@
       color: #721c24;
       border: 1px solid #f5c6cb;
     }
-    ul {
-      margin-left: 20px;
-      margin-bottom: 15px;
-    }
   </style>
 </head>
 <body>
 
-  <h1>Astrology Consultation Platform — Backend API Tester</h1>
-  <p>Status: <strong>Backend Running on Port 5001 (MongoDB Connected)</strong></p>
+  <!-- ================= AUTH VIEW (LOGIN & SIGNUPS) ================= -->
+  <div id="authView">
+    <h1>Astrology Consultation Platform — Backend Portal</h1>
+    <p>Server Status: <strong>Backend Active on Port 5001</strong></p>
+    <hr style="margin-bottom: 18px;">
 
-  <hr>
+    <!-- Section: Login -->
+    <fieldset>
+      <legend>Account Login</legend>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login_role">Role:</label>
+          <select id="login_role">
+            <option value="EXECUTIVE">Executive Astrologer</option>
+            <option value="NORMAL_USER">Customer / Client</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="login_email">Email:</label>
+          <input type="email" id="login_email" required placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+          <label for="login_password">Password:</label>
+          <input type="password" id="login_password" required placeholder="••••••••">
+        </div>
+        <div>
+          <label></label>
+          <button type="submit">Log In to Dashboard</button>
+          <button type="button" onclick="setLogin('executive1@example.com', 'Password123!', 'EXECUTIVE')">Demo Astrologer</button>
+          <button type="button" onclick="setLogin('user1@example.com', 'Password123!', 'NORMAL_USER')">Demo Client</button>
+        </div>
+      </form>
+      <div id="loginMsg" class="status-msg"></div>
+    </fieldset>
 
-  <!-- Section 1: Executive Astrologer Signup -->
-  <fieldset>
-    <legend>Executive Astrologer Signup</legend>
-    <form id="execSignupForm" onsubmit="submitExecSignup(event)">
-      <div class="form-group">
-        <label for="exec_name">Full Name *</label>
-        <input type="text" id="exec_name" required placeholder="Pt. Rameshwar Shastri">
-      </div>
-      <div class="form-group">
-        <label for="exec_email">Email Address *</label>
-        <input type="email" id="exec_email" required placeholder="astrologer@example.com">
-      </div>
-      <div class="form-group">
-        <label for="exec_password">Password *</label>
-        <input type="password" id="exec_password" required placeholder="Min 6 characters">
-      </div>
-      <div class="form-group">
-        <label for="exec_phone">Phone Number *</label>
-        <input type="tel" id="exec_phone" required placeholder="+91 9876543210">
-      </div>
-      <div class="form-group">
-        <label for="exec_title">Title</label>
-        <input type="text" id="exec_title" placeholder="Acharya / Vedic Astrologer">
-      </div>
-      <div class="form-group">
-        <label for="exec_price">Price Per Minute (₹) *</label>
-        <input type="number" id="exec_price" value="25" min="1" required>
-      </div>
-      <div class="form-group">
-        <label for="exec_exp">Experience (Years)</label>
-        <input type="number" id="exec_exp" value="10" min="0">
-      </div>
-      <div class="form-group">
-        <label for="exec_upi">UPI ID</label>
-        <input type="text" id="exec_upi" placeholder="astrologer@okhdfcbank">
-      </div>
-      <div class="form-group">
-        <label for="exec_specs">Specializations</label>
-        <input type="text" id="exec_specs" placeholder="Kundli Analysis, Career, Marriage">
+    <!-- Section: Executive Signup -->
+    <fieldset>
+      <legend>New Astrologer (Executive) Signup</legend>
+      <form id="execSignupForm" onsubmit="handleExecSignup(event)">
+        <div class="form-group">
+          <label for="exec_name">Full Name *</label>
+          <input type="text" id="exec_name" required placeholder="e.g. Acharya Ramesh">
+        </div>
+        <div class="form-group">
+          <label for="exec_email">Email Address *</label>
+          <input type="email" id="exec_email" required placeholder="astrologer@example.com">
+        </div>
+        <div class="form-group">
+          <label for="exec_password">Password *</label>
+          <input type="password" id="exec_password" required placeholder="Min 6 characters">
+        </div>
+        <div class="form-group">
+          <label for="exec_phone">Phone Number *</label>
+          <input type="tel" id="exec_phone" required placeholder="+91 9876543210">
+        </div>
+        <div class="form-group">
+          <label for="exec_title">Professional Title</label>
+          <input type="text" id="exec_title" placeholder="Acharya / Vedic Astrologer">
+        </div>
+        <div class="form-group">
+          <label for="exec_price">Per-Minute Rate (₹) *</label>
+          <input type="number" id="exec_price" value="25" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="exec_exp">Years of Experience</label>
+          <input type="number" id="exec_exp" value="10" min="0">
+        </div>
+        <div class="form-group">
+          <label for="exec_upi">UPI ID</label>
+          <input type="text" id="exec_upi" placeholder="astrologer@okhdfcbank">
+        </div>
+        <div class="form-group">
+          <label for="exec_specs">Specializations</label>
+          <input type="text" id="exec_specs" placeholder="Kundli Analysis, Career, Marriage">
+        </div>
+        <div>
+          <label></label>
+          <button type="submit">Register as Astrologer</button>
+          <button type="button" onclick="fillDemoExec()">Fill Sample Data</button>
+        </div>
+      </form>
+      <div id="execMsg" class="status-msg"></div>
+    </fieldset>
+
+    <!-- Section: Client Signup -->
+    <fieldset>
+      <legend>New Customer (Client) Signup</legend>
+      <form id="userSignupForm" onsubmit="handleUserSignup(event)">
+        <div class="form-group">
+          <label for="user_name">Full Name *</label>
+          <input type="text" id="user_name" required placeholder="e.g. Amit Sharma">
+        </div>
+        <div class="form-group">
+          <label for="user_email">Email Address *</label>
+          <input type="email" id="user_email" required placeholder="client@example.com">
+        </div>
+        <div class="form-group">
+          <label for="user_password">Password *</label>
+          <input type="password" id="user_password" required placeholder="Min 6 characters">
+        </div>
+        <div class="form-group">
+          <label for="user_phone">Phone Number *</label>
+          <input type="tel" id="user_phone" required placeholder="+91 9123456780">
+        </div>
+        <div class="form-group">
+          <label for="user_dob">Date of Birth</label>
+          <input type="date" id="user_dob">
+        </div>
+        <div class="form-group">
+          <label for="user_pob">Place of Birth</label>
+          <input type="text" id="user_pob" placeholder="e.g. New Delhi">
+        </div>
+        <div class="form-group">
+          <label for="user_gender">Gender</label>
+          <select id="user_gender">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label></label>
+          <button type="submit">Register as Client</button>
+          <button type="button" onclick="fillDemoUser()">Fill Sample Data</button>
+        </div>
+      </form>
+      <div id="userMsg" class="status-msg"></div>
+    </fieldset>
+  </div>
+
+  <!-- ================= EXECUTIVE (ASTROLOGER) DASHBOARD ================= -->
+  <div id="execDashboardView" style="display: none;">
+    <div class="top-bar">
+      <div>
+        <strong>Astrologer Management Portal</strong> | Logged in as: <span id="execDisplayName"></span> (<span id="execDisplayEmail"></span>)
       </div>
       <div>
-        <label></label>
-        <button type="submit">Sign Up as Executive</button>
-        <button type="button" onclick="fillDemoExec()">Fill Sample Data</button>
+        <button onclick="logout()">Logout</button>
       </div>
-    </form>
-    <div id="execMsg" class="status-msg"></div>
-  </fieldset>
+    </div>
 
-  <!-- Section 2: Normal User (Client) Signup -->
-  <fieldset>
-    <legend>Normal User (Client) Signup</legend>
-    <form id="userSignupForm" onsubmit="submitUserSignup(event)">
-      <div class="form-group">
-        <label for="user_name">Full Name *</label>
-        <input type="text" id="user_name" required placeholder="Amit Sharma">
+    <div id="execAlert" class="status-msg"></div>
+
+    <!-- Executive Profile Info -->
+    <fieldset>
+      <legend>My Astrologer Profile &amp; Settings</legend>
+      <p><strong>Title:</strong> <span id="p_title">-</span></p>
+      <p><strong>Experience:</strong> <span id="p_exp">-</span> years</p>
+      <p><strong>Specializations:</strong> <span id="p_specs">-</span></p>
+      <p><strong>UPI ID:</strong> <span id="p_upi">-</span></p>
+      <p><strong>Current Per-Minute Consultation Fee:</strong> ₹<span id="p_price">-</span> / minute</p>
+    </fieldset>
+
+    <!-- Pricing Management -->
+    <fieldset>
+      <legend>Update Consultation Pricing</legend>
+      <form onsubmit="handleUpdatePricing(event)">
+        <div class="form-group">
+          <label for="new_price">New Per-Minute Rate (₹):</label>
+          <input type="number" id="new_price" min="1" required style="width: 150px;">
+          <button type="submit">Save Rate</button>
+        </div>
+      </form>
+    </fieldset>
+
+    <!-- UPI & Payment QR Settings -->
+    <fieldset>
+      <legend>Update UPI Details</legend>
+      <form onsubmit="handleUpdateUpi(event)">
+        <div class="form-group">
+          <label for="update_upi">UPI ID:</label>
+          <input type="text" id="update_upi" placeholder="astrologer@upi">
+          <button type="submit">Save UPI ID</button>
+        </div>
+      </form>
+    </fieldset>
+
+    <!-- Booking Requests -->
+    <fieldset>
+      <legend>Consultation Bookings &amp; Payment Verifications</legend>
+      <div style="margin-bottom: 10px;">
+        <button type="button" onclick="loadExecutiveData()">Refresh Bookings</button>
       </div>
-      <div class="form-group">
-        <label for="user_email">Email Address *</label>
-        <input type="email" id="user_email" required placeholder="client@example.com">
+      <div id="execBookingsContainer">
+        <p>Loading bookings...</p>
       </div>
-      <div class="form-group">
-        <label for="user_password">Password *</label>
-        <input type="password" id="user_password" required placeholder="Min 6 characters">
-      </div>
-      <div class="form-group">
-        <label for="user_phone">Phone Number *</label>
-        <input type="tel" id="user_phone" required placeholder="+91 9123456780">
-      </div>
-      <div class="form-group">
-        <label for="user_dob">Date of Birth</label>
-        <input type="date" id="user_dob">
-      </div>
-      <div class="form-group">
-        <label for="user_pob">Place of Birth</label>
-        <input type="text" id="user_pob" placeholder="e.g. New Delhi">
-      </div>
-      <div class="form-group">
-        <label for="user_gender">Gender</label>
-        <select id="user_gender">
-          <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
+    </fieldset>
+  </div>
+
+  <!-- ================= NORMAL USER (CLIENT) DASHBOARD ================= -->
+  <div id="clientDashboardView" style="display: none;">
+    <div class="top-bar">
+      <div>
+        <strong>Customer Portal</strong> | Logged in as: <span id="clientDisplayName"></span> (<span id="clientDisplayEmail"></span>)
       </div>
       <div>
-        <label></label>
-        <button type="submit">Sign Up as Client</button>
-        <button type="button" onclick="fillDemoUser()">Fill Sample Data</button>
+        <button onclick="logout()">Logout</button>
       </div>
-    </form>
-    <div id="userMsg" class="status-msg"></div>
-  </fieldset>
+    </div>
 
-  <!-- Section 3: Login Test -->
-  <fieldset>
-    <legend>Login Test</legend>
-    <form id="loginForm" onsubmit="submitLogin(event)">
-      <div class="form-group">
-        <label for="login_role">Role</label>
-        <select id="login_role">
-          <option value="EXECUTIVE">Executive (Astrologer)</option>
-          <option value="NORMAL_USER">Normal User (Client)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="login_email">Email</label>
-        <input type="email" id="login_email" required placeholder="email@example.com">
-      </div>
-      <div class="form-group">
-        <label for="login_password">Password</label>
-        <input type="password" id="login_password" required placeholder="Password">
-      </div>
-      <div>
-        <label></label>
-        <button type="submit">Login</button>
-        <button type="button" onclick="setLogin('executive1@example.com', 'Password123!', 'EXECUTIVE')">Demo Astrologer</button>
-        <button type="button" onclick="setLogin('user1@example.com', 'Password123!', 'NORMAL_USER')">Demo Client</button>
-      </div>
-    </form>
-    <div id="loginMsg" class="status-msg"></div>
-  </fieldset>
+    <div id="clientAlert" class="status-msg"></div>
 
-  <!-- Section 4: Public Endpoints -->
-  <fieldset>
-    <legend>Direct API Endpoints</legend>
-    <ul>
-      <li><a href="/api/health" target="_blank">Health Check (/api/health)</a></li>
-      <li><a href="/api/public/astrologers" target="_blank">Public Astrologers List (/api/public/astrologers)</a></li>
-      <li><a href="/api/public/services" target="_blank">Consultation Services List (/api/public/services)</a></li>
-    </ul>
-  </fieldset>
+    <!-- Book a Consultation -->
+    <fieldset>
+      <legend>Book a Consultation</legend>
+      <form id="bookingForm" onsubmit="handleCreateBooking(event)">
+        <div class="form-group">
+          <label for="book_astrologer">Select Astrologer *</label>
+          <select id="book_astrologer" required onchange="calculatePrice()">
+            <option value="">-- Choose an Astrologer --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="book_topic">Consultation Topic *</label>
+          <select id="book_topic" required>
+            <option value="Kundli Analysis">Kundli Analysis</option>
+            <option value="Career & Business Guidance">Career & Business Guidance</option>
+            <option value="Marriage & Relationship Consultation">Marriage & Relationship Consultation</option>
+            <option value="Kundli Matching">Kundli Matching</option>
+            <option value="Gemstone Consultation">Gemstone Consultation</option>
+            <option value="Vastu Shastra Consultation">Vastu Shastra Consultation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="book_duration">Duration *</label>
+          <select id="book_duration" required onchange="calculatePrice()">
+            <option value="15">15 Minutes</option>
+            <option value="30" selected>30 Minutes</option>
+            <option value="45">45 Minutes</option>
+            <option value="60">60 Minutes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="book_date">Preferred Date *</label>
+          <input type="date" id="book_date" required>
+        </div>
+        <div class="form-group">
+          <label for="book_time">Preferred Time *</label>
+          <input type="time" id="book_time" value="14:00" required>
+        </div>
+        <div class="form-group">
+          <label>Estimated Total Amount:</label>
+          <strong>₹<span id="book_amount_display">0</span></strong>
+        </div>
+        <div>
+          <label></label>
+          <button type="submit">Confirm &amp; Create Booking</button>
+        </div>
+      </form>
+    </fieldset>
+
+    <!-- My Bookings -->
+    <fieldset>
+      <legend>My Consultation Bookings</legend>
+      <div style="margin-bottom: 10px;">
+        <button type="button" onclick="loadClientData()">Refresh My Bookings</button>
+      </div>
+      <div id="clientBookingsContainer">
+        <p>Loading your bookings...</p>
+      </div>
+    </fieldset>
+  </div>
 
   <script>
-    function showMessage(elementId, text, isSuccess) {
-      const el = document.getElementById(elementId);
+    let currentToken = localStorage.getItem('strologer_token') || '';
+    let currentUser = null;
+    let astrologersList = [];
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      const storedUser = localStorage.getItem('strologer_user');
+      if (currentToken && storedUser) {
+        try {
+          currentUser = JSON.parse(storedUser);
+          showDashboard(currentUser);
+          return;
+        } catch (e) {
+          localStorage.removeItem('strologer_token');
+          localStorage.removeItem('strologer_user');
+        }
+      }
+      showAuth();
+    });
+
+    // Navigation state helpers
+    function showAuth() {
+      document.getElementById('authView').style.display = 'block';
+      document.getElementById('execDashboardView').style.display = 'none';
+      document.getElementById('clientDashboardView').style.display = 'none';
+    }
+
+    function showDashboard(user) {
+      document.getElementById('authView').style.display = 'none';
+
+      if (user.role === 'EXECUTIVE') {
+        document.getElementById('execDashboardView').style.display = 'block';
+        document.getElementById('clientDashboardView').style.display = 'none';
+        document.getElementById('execDisplayName').innerText = user.name;
+        document.getElementById('execDisplayEmail').innerText = user.email;
+        loadExecutiveData();
+      } else {
+        document.getElementById('clientDashboardView').style.display = 'block';
+        document.getElementById('execDashboardView').style.display = 'none';
+        document.getElementById('clientDisplayName').innerText = user.name;
+        document.getElementById('clientDisplayEmail').innerText = user.email;
+        
+        // set default booking date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('book_date').value = tomorrow.toISOString().split('T')[0];
+
+        loadClientData();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('strologer_token');
+      localStorage.removeItem('strologer_user');
+      currentToken = '';
+      currentUser = null;
+      showAuth();
+    }
+
+    function showMsg(id, text, isSuccess) {
+      const el = document.getElementById(id);
+      if (!el) return;
       el.className = 'status-msg ' + (isSuccess ? 'success' : 'error');
       el.innerText = text;
       el.style.display = 'block';
+      setTimeout(() => {
+        if (el) el.style.display = 'none';
+      }, 7000);
+    }
+
+    function setLogin(email, password, role) {
+      document.getElementById('login_email').value = email;
+      document.getElementById('login_password').value = password;
+      document.getElementById('login_role').value = role;
     }
 
     function fillDemoExec() {
@@ -224,7 +440,7 @@
       document.getElementById('exec_phone').value = '+91 98' + rand + '54321';
       document.getElementById('exec_title').value = 'Vedic Astrologer';
       document.getElementById('exec_price').value = '25';
-      document.getElementById('exec_exp').value = '8';
+      document.getElementById('exec_exp').value = '12';
       document.getElementById('exec_upi').value = 'shastri' + rand + '@upi';
       document.getElementById('exec_specs').value = 'Kundli, Career, Marriage';
     }
@@ -235,92 +451,18 @@
       document.getElementById('user_email').value = 'customer' + rand + '@example.com';
       document.getElementById('user_password').value = 'Password123!';
       document.getElementById('user_phone').value = '+91 97' + rand + '12345';
-      document.getElementById('user_dob').value = '1996-05-20';
-      document.getElementById('user_pob').value = 'Delhi';
+      document.getElementById('user_dob').value = '1995-08-15';
+      document.getElementById('user_pob').value = 'New Delhi';
       document.getElementById('user_gender').value = 'male';
     }
 
-    function setLogin(email, password, role) {
-      document.getElementById('login_email').value = email;
-      document.getElementById('login_password').value = password;
-      document.getElementById('login_role').value = role;
-    }
-
-    async function submitExecSignup(e) {
+    // ================= AUTH HANDLERS =================
+    async function handleLogin(e) {
       e.preventDefault();
-      const el = document.getElementById('execMsg');
-      el.style.display = 'none';
-
-      const body = {
-        name: document.getElementById('exec_name').value,
-        email: document.getElementById('exec_email').value,
-        password: document.getElementById('exec_password').value,
-        phone: document.getElementById('exec_phone').value,
-        title: document.getElementById('exec_title').value,
-        pricePerMinute: Number(document.getElementById('exec_price').value),
-        experience: Number(document.getElementById('exec_exp').value),
-        upiId: document.getElementById('exec_upi').value,
-        specializations: document.getElementById('exec_specs').value.split(',').map(s => s.trim()).filter(Boolean)
-      };
-
-      try {
-        const res = await fetch('/api/auth/executive/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMessage('execMsg', 'Success: ' + data.message + ' (User ID: ' + data.user.id + ', Role: ' + data.user.role + ')', true);
-        } else {
-          showMessage('execMsg', 'Error: ' + (data.message || 'Registration failed'), false);
-        }
-      } catch (err) {
-        showMessage('execMsg', 'Network Error: ' + err.message, false);
-      }
-    }
-
-    async function submitUserSignup(e) {
-      e.preventDefault();
-      const el = document.getElementById('userMsg');
-      el.style.display = 'none';
-
-      const body = {
-        name: document.getElementById('user_name').value,
-        email: document.getElementById('user_email').value,
-        password: document.getElementById('user_password').value,
-        phone: document.getElementById('user_phone').value,
-        dateOfBirth: document.getElementById('user_dob').value,
-        placeOfBirth: document.getElementById('user_pob').value,
-        gender: document.getElementById('user_gender').value
-      };
-
-      try {
-        const res = await fetch('/api/auth/user/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMessage('userMsg', 'Success: ' + data.message + ' (User ID: ' + data.user.id + ', Role: ' + data.user.role + ')', true);
-        } else {
-          showMessage('userMsg', 'Error: ' + (data.message || 'Registration failed'), false);
-        }
-      } catch (err) {
-        showMessage('userMsg', 'Network Error: ' + err.message, false);
-      }
-    }
-
-    async function submitLogin(e) {
-      e.preventDefault();
-      const el = document.getElementById('loginMsg');
-      el.style.display = 'none';
-
       const role = document.getElementById('login_role').value;
       const endpoint = role === 'EXECUTIVE' ? '/api/auth/executive/login' : '/api/auth/user/login';
       const body = {
-        email: document.getElementById('login_email').value,
+        email: document.getElementById('login_email').value.trim(),
         password: document.getElementById('login_password').value
       };
 
@@ -332,12 +474,407 @@
         });
         const data = await res.json();
         if (res.ok) {
-          showMessage('loginMsg', 'Success: Logged in successfully as ' + data.user.name + ' (' + data.user.role + ')', true);
+          currentToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('strologer_token', currentToken);
+          localStorage.setItem('strologer_user', JSON.stringify(currentUser));
+          // Change the page directly to the logged in dashboard
+          showDashboard(currentUser);
         } else {
-          showMessage('loginMsg', 'Error: ' + (data.message || 'Login failed'), false);
+          showMsg('loginMsg', data.message || 'Login failed', false);
         }
       } catch (err) {
-        showMessage('loginMsg', 'Network Error: ' + err.message, false);
+        showMsg('loginMsg', 'Network error: ' + err.message, false);
+      }
+    }
+
+    async function handleExecSignup(e) {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('exec_name').value.trim(),
+        email: document.getElementById('exec_email').value.trim(),
+        password: document.getElementById('exec_password').value,
+        phone: document.getElementById('exec_phone').value.trim(),
+        title: document.getElementById('exec_title').value.trim(),
+        pricePerMinute: Number(document.getElementById('exec_price').value),
+        experience: Number(document.getElementById('exec_exp').value),
+        upiId: document.getElementById('exec_upi').value.trim(),
+        specializations: document.getElementById('exec_specs').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      try {
+        const res = await fetch('/api/auth/executive/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('strologer_token', currentToken);
+          localStorage.setItem('strologer_user', JSON.stringify(currentUser));
+          // Change page directly to executive dashboard
+          showDashboard(currentUser);
+        } else {
+          showMsg('execMsg', data.message || 'Registration failed', false);
+        }
+      } catch (err) {
+        showMsg('execMsg', 'Network error: ' + err.message, false);
+      }
+    }
+
+    async function handleUserSignup(e) {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('user_name').value.trim(),
+        email: document.getElementById('user_email').value.trim(),
+        password: document.getElementById('user_password').value,
+        phone: document.getElementById('user_phone').value.trim(),
+        dateOfBirth: document.getElementById('user_dob').value,
+        placeOfBirth: document.getElementById('user_pob').value.trim(),
+        gender: document.getElementById('user_gender').value
+      };
+
+      try {
+        const res = await fetch('/api/auth/user/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentToken = data.token;
+          currentUser = data.user;
+          localStorage.setItem('strologer_token', currentToken);
+          localStorage.setItem('strologer_user', JSON.stringify(currentUser));
+          // Change page directly to client dashboard
+          showDashboard(currentUser);
+        } else {
+          showMsg('userMsg', data.message || 'Registration failed', false);
+        }
+      } catch (err) {
+        showMsg('userMsg', 'Network error: ' + err.message, false);
+      }
+    }
+
+    // ================= EXECUTIVE DASHBOARD DATA =================
+    async function loadExecutiveData() {
+      if (!currentToken) return;
+
+      // 1. Fetch Profile
+      try {
+        const pRes = await fetch('/api/executive/profile', {
+          headers: { 'Authorization': 'Bearer ' + currentToken }
+        });
+        const pData = await pRes.json();
+        if (pRes.ok && pData.profile) {
+          const prof = pData.profile;
+          document.getElementById('p_title').innerText = prof.title || 'Acharya';
+          document.getElementById('p_exp').innerText = prof.experience || 0;
+          document.getElementById('p_specs').innerText = (prof.specialization || []).join(', ') || 'General';
+          document.getElementById('p_upi').innerText = prof.upiId || 'Not configured';
+          document.getElementById('p_price').innerText = prof.pricePerMinute || 0;
+          document.getElementById('new_price').value = prof.pricePerMinute || 20;
+          document.getElementById('update_upi').value = prof.upiId || '';
+        }
+      } catch (e) {
+        console.error('Failed to load executive profile:', e);
+      }
+
+      // 2. Fetch Bookings
+      try {
+        const bRes = await fetch('/api/executive/bookings', {
+          headers: { 'Authorization': 'Bearer ' + currentToken }
+        });
+        const bData = await bRes.json();
+        const container = document.getElementById('execBookingsContainer');
+
+        if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
+          let html = '<table><thead><tr><th>Booking ID</th><th>Customer</th><th>Topic</th><th>Duration</th><th>Amount</th><th>Payment Status</th><th>Consultation Status</th><th>Action</th></tr></thead><tbody>';
+          
+          bData.bookings.forEach(b => {
+            const customerName = b.customerId ? b.customerId.name : 'Unknown';
+            let actions = '';
+            
+            if (b.paymentStatus === 'PROOF_SUBMITTED' || b.paymentStatus === 'UNDER_VERIFICATION') {
+              actions += `<button onclick="verifyPayment('${b._id}')">Verify Payment</button> `;
+            }
+            if (b.paymentStatus === 'PAYMENT_VERIFIED' && b.bookingStatus !== 'SCHEDULED' && b.bookingStatus !== 'COMPLETED') {
+              actions += `<button onclick="scheduleMeeting('${b._id}')">Schedule Zoom</button> `;
+            }
+            if (b.bookingStatus === 'SCHEDULED' && b.zoomMeeting && b.zoomMeeting.joinUrl) {
+              actions += `<a href="${b.zoomMeeting.joinUrl}" target="_blank">Join Zoom</a>`;
+            }
+            if (!actions) {
+              actions = '-';
+            }
+
+            html += `<tr>
+              <td>${b.bookingId || b._id}</td>
+              <td>${customerName}</td>
+              <td>${b.consultationTopic}</td>
+              <td>${b.selectedDuration} mins</td>
+              <td>₹${b.totalAmount}</td>
+              <td><strong>${b.paymentStatus}</strong></td>
+              <td>${b.bookingStatus}</td>
+              <td>${actions}</td>
+            </tr>`;
+          });
+
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '<p>No customer bookings received yet.</p>';
+        }
+      } catch (e) {
+        document.getElementById('execBookingsContainer').innerHTML = '<p>Error loading bookings.</p>';
+      }
+    }
+
+    async function handleUpdatePricing(e) {
+      e.preventDefault();
+      const rate = Number(document.getElementById('new_price').value);
+      try {
+        const res = await fetch('/api/executive/pricing', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify({ pricePerMinute: rate })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'Consultation price updated to ₹' + rate + '/minute.', true);
+          document.getElementById('p_price').innerText = rate;
+        } else {
+          showMsg('execAlert', data.message || 'Failed to update pricing.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    async function handleUpdateUpi(e) {
+      e.preventDefault();
+      const upi = document.getElementById('update_upi').value.trim();
+      try {
+        const res = await fetch('/api/executive/payment-info', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify({ upiId: upi })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'UPI ID updated successfully.', true);
+          document.getElementById('p_upi').innerText = upi || 'Not configured';
+        } else {
+          showMsg('execAlert', data.message || 'Failed to update UPI details.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    async function verifyPayment(bookingId) {
+      if (!confirm('Have you confirmed receipt of this payment in your UPI app?')) return;
+      try {
+        const res = await fetch(`/api/executive/bookings/${bookingId}/verify-payment`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify({ verificationNotes: 'Manual verification approved via portal.' })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'Payment verified successfully. You can now schedule the Zoom meeting.', true);
+          loadExecutiveData();
+        } else {
+          showMsg('execAlert', data.message || 'Verification failed.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    async function scheduleMeeting(bookingId) {
+      const zoomUrl = prompt('Enter Zoom Meeting Join URL (leave blank to auto-generate):', 'https://us05web.zoom.us/j/987654321');
+      if (zoomUrl === null) return;
+
+      try {
+        const res = await fetch(`/api/executive/bookings/${bookingId}/schedule`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify({
+            manualZoomUrl: zoomUrl || undefined,
+            meetingPasscode: '123456'
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'Zoom consultation scheduled successfully!', true);
+          loadExecutiveData();
+        } else {
+          showMsg('execAlert', data.message || 'Scheduling failed.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    // ================= CLIENT DASHBOARD DATA =================
+    async function loadClientData() {
+      if (!currentToken) return;
+
+      // 1. Fetch public astrologers for dropdown
+      try {
+        const aRes = await fetch('/api/public/astrologers');
+        const aData = await aRes.json();
+        if (aRes.ok && aData.astrologers) {
+          astrologersList = aData.astrologers;
+          const select = document.getElementById('book_astrologer');
+          select.innerHTML = '<option value="">-- Choose an Astrologer --</option>';
+          astrologersList.forEach(a => {
+            select.innerHTML += `<option value="${a.id}">${a.name} (${a.title}) — ₹${a.pricePerMinute}/min</option>`;
+          });
+          calculatePrice();
+        }
+      } catch (e) {
+        console.error('Failed to load astrologers:', e);
+      }
+
+      // 2. Fetch My Bookings
+      try {
+        const bRes = await fetch('/api/bookings/my-bookings', {
+          headers: { 'Authorization': 'Bearer ' + currentToken }
+        });
+        const bData = await bRes.json();
+        const container = document.getElementById('clientBookingsContainer');
+
+        if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
+          let html = '<table><thead><tr><th>Booking ID</th><th>Astrologer</th><th>Topic</th><th>Duration</th><th>Amount</th><th>Status</th><th>Zoom Meeting</th><th>Action</th></tr></thead><tbody>';
+
+          bData.bookings.forEach(b => {
+            const astroName = b.executiveId ? b.executiveId.name : 'Astrologer';
+            let zoomLink = '-';
+            if (b.zoomMeeting && b.zoomMeeting.joinUrl) {
+              zoomLink = `<a href="${b.zoomMeeting.joinUrl}" target="_blank"><strong>Join Zoom Call</strong></a>`;
+            }
+
+            let action = '-';
+            if (b.paymentStatus === 'PAYMENT_PENDING' || b.paymentStatus === 'PAYMENT_REJECTED') {
+              action = `<input type="file" id="file_${b._id}" style="width: 140px; font-size: 11px;"> <button onclick="uploadProof('${b._id}')">Submit Proof</button>`;
+            } else if (b.paymentStatus === 'PROOF_SUBMITTED' || b.paymentStatus === 'UNDER_VERIFICATION') {
+              action = 'Awaiting Astrologer Approval';
+            } else if (b.paymentStatus === 'PAYMENT_VERIFIED') {
+              action = 'Payment Approved';
+            }
+
+            html += `<tr>
+              <td>${b.bookingId || b._id}</td>
+              <td>${astroName}</td>
+              <td>${b.consultationTopic}</td>
+              <td>${b.selectedDuration} mins</td>
+              <td>₹${b.totalAmount}</td>
+              <td>${b.bookingStatus} (${b.paymentStatus})</td>
+              <td>${zoomLink}</td>
+              <td>${action}</td>
+            </tr>`;
+          });
+
+          html += '</tbody></table>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '<p>You have not booked any consultations yet.</p>';
+        }
+      } catch (e) {
+        document.getElementById('clientBookingsContainer').innerHTML = '<p>Error loading bookings.</p>';
+      }
+    }
+
+    function calculatePrice() {
+      const execId = document.getElementById('book_astrologer').value;
+      const duration = Number(document.getElementById('book_duration').value) || 30;
+      const astro = astrologersList.find(a => a.id === execId);
+      const rate = astro ? astro.pricePerMinute : 0;
+      const total = rate * duration;
+      document.getElementById('book_amount_display').innerText = total;
+    }
+
+    async function handleCreateBooking(e) {
+      e.preventDefault();
+      const execId = document.getElementById('book_astrologer').value;
+      if (!execId) {
+        alert('Please choose an astrologer.');
+        return;
+      }
+
+      const body = {
+        executiveId: execId,
+        consultationTopic: document.getElementById('book_topic').value,
+        selectedDuration: Number(document.getElementById('book_duration').value),
+        preferredDate: document.getElementById('book_date').value,
+        preferredTime: document.getElementById('book_time').value,
+        problemDescription: 'Consultation request from customer portal'
+      };
+
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('clientAlert', 'Booking created successfully! Reference ID: ' + (data.booking.bookingId || data.booking._id), true);
+          loadClientData();
+        } else {
+          showMsg('clientAlert', data.message || 'Failed to create booking.', false);
+        }
+      } catch (err) {
+        showMsg('clientAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    async function uploadProof(bookingId) {
+      const fileInput = document.getElementById('file_' + bookingId);
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert('Please select a payment screenshot image first.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('screenshot', fileInput.files[0]);
+
+      try {
+        const res = await fetch(`/api/bookings/${bookingId}/payment-proof`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('clientAlert', 'Payment screenshot uploaded successfully. Astrologer will verify.', true);
+          loadClientData();
+        } else {
+          showMsg('clientAlert', data.message || 'Upload failed.', false);
+        }
+      } catch (err) {
+        showMsg('clientAlert', 'Error: ' + err.message, false);
       }
     }
   </script>
