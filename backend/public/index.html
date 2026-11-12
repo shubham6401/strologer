@@ -18,7 +18,7 @@
       margin-bottom: 20px;
       padding: 14px;
       border: 1px solid #ccc;
-      max-width: 820px;
+      max-width: 900px;
     }
     legend {
       font-weight: bold;
@@ -40,9 +40,10 @@
     }
     button {
       padding: 6px 14px;
-      font-size: 13.5px;
+      font-size: 13px;
       cursor: pointer;
       margin-right: 6px;
+      margin-bottom: 4px;
     }
     table {
       width: 100%;
@@ -54,14 +55,15 @@
       border: 1px solid #ccc;
     }
     th, td {
-      padding: 6px 8px;
+      padding: 8px 10px;
       text-align: left;
+      vertical-align: top;
     }
     th {
       background-color: #f2f2f2;
     }
     .top-bar {
-      max-width: 820px;
+      max-width: 900px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -73,7 +75,7 @@
     .status-msg {
       margin-top: 8px;
       padding: 8px;
-      max-width: 820px;
+      max-width: 900px;
       display: none;
       font-size: 13.5px;
     }
@@ -86,6 +88,36 @@
       background-color: #f8d7da;
       color: #721c24;
       border: 1px solid #f5c6cb;
+    }
+    .img-preview {
+      max-width: 250px;
+      max-height: 200px;
+      display: block;
+      margin-top: 6px;
+      border: 1px solid #aaa;
+    }
+    .zoom-box {
+      background: #eef7ff;
+      border: 1px solid #b8daff;
+      padding: 8px 10px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .dialog-box {
+      background: #fff;
+      border: 2px solid #555;
+      padding: 20px;
+      max-width: 500px;
+      width: 90%;
     }
   </style>
 </head>
@@ -119,8 +151,8 @@
         <div>
           <label></label>
           <button type="submit">Log In to Dashboard</button>
-          <button type="button" onclick="setLogin('executive1@example.com', 'Password123!', 'EXECUTIVE')">Demo Astrologer</button>
-          <button type="button" onclick="setLogin('user1@example.com', 'Password123!', 'NORMAL_USER')">Demo Client</button>
+          <button type="button" onclick="setLogin('executive1@example.com', 'Pass@123', 'EXECUTIVE')">Demo Astrologer</button>
+          <button type="button" onclick="setLogin('user1@example.com', 'Pass@123', 'NORMAL_USER')">Demo Client</button>
         </div>
       </form>
       <div id="loginMsg" class="status-msg"></div>
@@ -281,6 +313,33 @@
     </fieldset>
   </div>
 
+  <!-- Dialog for Scheduling Zoom Consultation -->
+  <div id="scheduleDialog" class="dialog-overlay">
+    <div class="dialog-box">
+      <h3>Schedule Zoom Consultation</h3>
+      <form onsubmit="submitScheduleMeeting(event)">
+        <input type="hidden" id="sched_booking_id">
+        <div class="form-group">
+          <label style="width: 130px;">Start Date &amp; Time *</label>
+          <input type="datetime-local" id="sched_datetime" required style="width: 280px;">
+        </div>
+        <div class="form-group">
+          <label style="width: 130px;">Zoom Meeting URL</label>
+          <input type="url" id="sched_zoom_url" placeholder="https://us05web.zoom.us/j/..." style="width: 280px;">
+          <small style="display:block; color:#666; margin-left: 135px;">(Leave blank to auto-generate link)</small>
+        </div>
+        <div class="form-group">
+          <label style="width: 130px;">Passcode</label>
+          <input type="text" id="sched_passcode" value="123456" style="width: 280px;">
+        </div>
+        <div style="margin-top: 15px; text-align: right;">
+          <button type="button" onclick="closeScheduleDialog()">Cancel</button>
+          <button type="submit" style="background: #28a745; color: white;">Confirm &amp; Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ================= NORMAL USER (CLIENT) DASHBOARD ================= -->
   <div id="clientDashboardView" style="display: none;">
     <div class="top-bar">
@@ -398,7 +457,6 @@
         document.getElementById('clientDisplayName').innerText = user.name;
         document.getElementById('clientDisplayEmail').innerText = user.email;
         
-        // set default booking date to tomorrow
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         document.getElementById('book_date').value = tomorrow.toISOString().split('T')[0];
@@ -478,7 +536,6 @@
           currentUser = data.user;
           localStorage.setItem('strologer_token', currentToken);
           localStorage.setItem('strologer_user', JSON.stringify(currentUser));
-          // Change the page directly to the logged in dashboard
           showDashboard(currentUser);
         } else {
           showMsg('loginMsg', data.message || 'Login failed', false);
@@ -514,7 +571,6 @@
           currentUser = data.user;
           localStorage.setItem('strologer_token', currentToken);
           localStorage.setItem('strologer_user', JSON.stringify(currentUser));
-          // Change page directly to executive dashboard
           showDashboard(currentUser);
         } else {
           showMsg('execMsg', data.message || 'Registration failed', false);
@@ -548,7 +604,6 @@
           currentUser = data.user;
           localStorage.setItem('strologer_token', currentToken);
           localStorage.setItem('strologer_user', JSON.stringify(currentUser));
-          // Change page directly to client dashboard
           showDashboard(currentUser);
         } else {
           showMsg('userMsg', data.message || 'Registration failed', false);
@@ -591,34 +646,70 @@
         const container = document.getElementById('execBookingsContainer');
 
         if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
-          let html = '<table><thead><tr><th>Booking ID</th><th>Customer</th><th>Topic</th><th>Duration</th><th>Amount</th><th>Payment Status</th><th>Consultation Status</th><th>Action</th></tr></thead><tbody>';
+          let html = '<table><thead><tr>' +
+            '<th>Booking ID</th>' +
+            '<th>Customer</th>' +
+            '<th>Details</th>' +
+            '<th>Payment Screenshot Proof</th>' +
+            '<th>Payment Status</th>' +
+            '<th>Actions</th>' +
+            '</tr></thead><tbody>';
           
           bData.bookings.forEach(b => {
             const customerName = b.customerId ? b.customerId.name : 'Unknown';
-            let actions = '';
-            
-            if (b.paymentStatus === 'PROOF_SUBMITTED' || b.paymentStatus === 'UNDER_VERIFICATION') {
-              actions += `<button onclick="verifyPayment('${b._id}')">Verify Payment</button> `;
+            const customerPhone = b.customerId ? b.customerId.phone : '';
+
+            // Screenshot Proof Column
+            let screenshotHtml = '<em>No proof uploaded yet</em>';
+            if (b.paymentScreenshot && b.paymentScreenshot.url) {
+              const ssUrl = b.paymentScreenshot.url;
+              const ref = b.paymentScreenshot.transactionRef ? `<br><small>Ref/UTR: ${b.paymentScreenshot.transactionRef}</small>` : '';
+              screenshotHtml = `<div>
+                <a href="${ssUrl}" target="_blank" style="font-weight:bold; color:blue;">View Full Image ↗</a>
+                ${ref}
+                <button type="button" style="display:block; margin-top:4px;" onclick="toggleInlinePreview('${b._id}')">Toggle Preview</button>
+                <img id="img_${b._id}" src="${ssUrl}" class="img-preview" style="display:none;" alt="Payment Screenshot">
+              </div>`;
             }
-            if (b.paymentStatus === 'PAYMENT_VERIFIED' && b.bookingStatus !== 'SCHEDULED' && b.bookingStatus !== 'COMPLETED') {
-              actions += `<button onclick="scheduleMeeting('${b._id}')">Schedule Zoom</button> `;
+
+            // Actions Column
+            let actionHtml = '';
+            const needsVerification = (b.paymentStatus === 'PROOF_SUBMITTED' || b.paymentStatus === 'UNDER_VERIFICATION');
+
+            if (needsVerification) {
+              actionHtml += `<button type="button" style="background:#28a745; color:white;" onclick="verifyPayment('${b._id}')">Verify Payment</button><br>`;
+              actionHtml += `<button type="button" style="background:#dc3545; color:white;" onclick="rejectPaymentPrompt('${b._id}')">Reject Payment</button><br>`;
             }
-            if (b.bookingStatus === 'SCHEDULED' && b.zoomMeeting && b.zoomMeeting.joinUrl) {
-              actions += `<a href="${b.zoomMeeting.joinUrl}" target="_blank">Join Zoom</a>`;
+
+            if (b.paymentStatus === 'PAYMENT_VERIFIED') {
+              if (b.bookingStatus === 'SCHEDULED' && b.zoomMeetingUrl) {
+                actionHtml += `<div class="zoom-box">
+                  <strong>Zoom Scheduled</strong><br>
+                  <a href="${b.zoomMeetingUrl}" target="_blank">Open Zoom ↗</a><br>
+                  <small>Passcode: ${b.zoomPasscode || 'None'}</small>
+                </div>`;
+              } else {
+                const defaultDate = b.preferredDate || new Date().toISOString().split('T')[0];
+                const defaultTime = b.preferredTime || '14:00';
+                actionHtml += `<button type="button" style="background:#0066cc; color:white;" onclick="openScheduleDialog('${b._id}', '${defaultDate}', '${defaultTime}')">Schedule Zoom Meeting</button>`;
+              }
             }
-            if (!actions) {
-              actions = '-';
+
+            if (!actionHtml) {
+              actionHtml = '<span>-</span>';
             }
 
             html += `<tr>
-              <td>${b.bookingId || b._id}</td>
-              <td>${customerName}</td>
-              <td>${b.consultationTopic}</td>
-              <td>${b.selectedDuration} mins</td>
-              <td>₹${b.totalAmount}</td>
-              <td><strong>${b.paymentStatus}</strong></td>
-              <td>${b.bookingStatus}</td>
-              <td>${actions}</td>
+              <td><strong>${b.bookingId || b._id}</strong></td>
+              <td>${customerName}<br><small>${customerPhone}</small></td>
+              <td>
+                <strong>${b.consultationTopic}</strong><br>
+                Duration: ${b.selectedDuration} mins<br>
+                Amount: ₹${b.totalAmount}
+              </td>
+              <td>${screenshotHtml}</td>
+              <td><strong>${b.paymentStatus}</strong><br><small>Booking: ${b.bookingStatus}</small></td>
+              <td>${actionHtml}</td>
             </tr>`;
           });
 
@@ -630,6 +721,12 @@
       } catch (e) {
         document.getElementById('execBookingsContainer').innerHTML = '<p>Error loading bookings.</p>';
       }
+    }
+
+    function toggleInlinePreview(bookingId) {
+      const img = document.getElementById('img_' + bookingId);
+      if (!img) return;
+      img.style.display = img.style.display === 'none' ? 'block' : 'none';
     }
 
     async function handleUpdatePricing(e) {
@@ -681,7 +778,7 @@
     }
 
     async function verifyPayment(bookingId) {
-      if (!confirm('Have you confirmed receipt of this payment in your UPI app?')) return;
+      if (!confirm('Have you checked the screenshot and confirmed receipt in your UPI app?')) return;
       try {
         const res = await fetch(`/api/executive/bookings/${bookingId}/verify-payment`, {
           method: 'PUT',
@@ -689,11 +786,11 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + currentToken
           },
-          body: JSON.stringify({ verificationNotes: 'Manual verification approved via portal.' })
+          body: JSON.stringify({ notes: 'Verified by astrologer after inspecting payment proof.' })
         });
         const data = await res.json();
         if (res.ok) {
-          showMsg('execAlert', 'Payment verified successfully. You can now schedule the Zoom meeting.', true);
+          showMsg('execAlert', 'Payment verified successfully! You can now schedule the Zoom meeting.', true);
           loadExecutiveData();
         } else {
           showMsg('execAlert', data.message || 'Verification failed.', false);
@@ -703,9 +800,62 @@
       }
     }
 
-    async function scheduleMeeting(bookingId) {
-      const zoomUrl = prompt('Enter Zoom Meeting Join URL (leave blank to auto-generate):', 'https://us05web.zoom.us/j/987654321');
-      if (zoomUrl === null) return;
+    async function rejectPaymentPrompt(bookingId) {
+      const reason = prompt('Please enter the reason for rejecting this payment screenshot:');
+      if (!reason || !reason.trim()) return;
+
+      try {
+        const res = await fetch(`/api/executive/bookings/${bookingId}/reject-payment`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify({ reason: reason.trim() })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'Payment marked as rejected. Customer notified to resubmit proof.', true);
+          loadExecutiveData();
+        } else {
+          showMsg('execAlert', data.message || 'Rejection failed.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    // Schedule Dialog functions
+    function openScheduleDialog(bookingId, defaultDate, defaultTime) {
+      document.getElementById('sched_booking_id').value = bookingId;
+      
+      let dateVal = defaultDate;
+      if (!dateVal || dateVal.length !== 10) {
+        dateVal = new Date().toISOString().split('T')[0];
+      }
+      let timeVal = defaultTime || '14:00';
+      if (timeVal.length === 5) {
+        document.getElementById('sched_datetime').value = `${dateVal}T${timeVal}`;
+      } else {
+        document.getElementById('sched_datetime').value = `${dateVal}T14:00`;
+      }
+
+      document.getElementById('sched_zoom_url').value = '';
+      document.getElementById('scheduleDialog').style.display = 'flex';
+    }
+
+    function closeScheduleDialog() {
+      document.getElementById('scheduleDialog').style.display = 'none';
+    }
+
+    async function submitScheduleMeeting(e) {
+      e.preventDefault();
+      const bookingId = document.getElementById('sched_booking_id').value;
+      const dtVal = document.getElementById('sched_datetime').value;
+      const zoomUrl = document.getElementById('sched_zoom_url').value.trim();
+      const passcode = document.getElementById('sched_passcode').value.trim();
+
+      const startTime = new Date(dtVal).toISOString();
 
       try {
         const res = await fetch(`/api/executive/bookings/${bookingId}/schedule`, {
@@ -715,19 +865,21 @@
             'Authorization': 'Bearer ' + currentToken
           },
           body: JSON.stringify({
-            manualZoomUrl: zoomUrl || undefined,
-            meetingPasscode: '123456'
+            scheduledStartTime: startTime,
+            customMeetingUrl: zoomUrl || undefined,
+            manualPasscode: passcode || '123456'
           })
         });
         const data = await res.json();
         if (res.ok) {
+          closeScheduleDialog();
           showMsg('execAlert', 'Zoom consultation scheduled successfully!', true);
           loadExecutiveData();
         } else {
-          showMsg('execAlert', data.message || 'Scheduling failed.', false);
+          alert('Scheduling failed: ' + (data.message || 'Unknown error'));
         }
       } catch (err) {
-        showMsg('execAlert', 'Error: ' + err.message, false);
+        alert('Error: ' + err.message);
       }
     }
 
@@ -761,33 +913,69 @@
         const container = document.getElementById('clientBookingsContainer');
 
         if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
-          let html = '<table><thead><tr><th>Booking ID</th><th>Astrologer</th><th>Topic</th><th>Duration</th><th>Amount</th><th>Status</th><th>Zoom Meeting</th><th>Action</th></tr></thead><tbody>';
+          let html = '<table><thead><tr>' +
+            '<th>Booking ID</th>' +
+            '<th>Astrologer &amp; UPI</th>' +
+            '<th>Topic &amp; Amount</th>' +
+            '<th>Payment Status</th>' +
+            '<th>Zoom Meeting Consultation</th>' +
+            '<th>Payment Screenshot Upload</th>' +
+            '</tr></thead><tbody>';
 
           bData.bookings.forEach(b => {
             const astroName = b.executiveId ? b.executiveId.name : 'Astrologer';
-            let zoomLink = '-';
-            if (b.zoomMeeting && b.zoomMeeting.joinUrl) {
-              zoomLink = `<a href="${b.zoomMeeting.joinUrl}" target="_blank"><strong>Join Zoom Call</strong></a>`;
+            const astroUpi = (b.executiveProfile && b.executiveProfile.upiId) ? b.executiveProfile.upiId : 'Contact Astrologer';
+
+            // Zoom column
+            let zoomHtml = '<em>Not scheduled yet</em>';
+            if (b.zoomMeetingUrl) {
+              const meetingTime = b.scheduledStartTime ? new Date(b.scheduledStartTime).toLocaleString() : 'Scheduled Time';
+              zoomHtml = `<div class="zoom-box">
+                <strong style="color: #0056b3;">✓ Scheduled on ${meetingTime}</strong><br>
+                <div style="margin: 6px 0;">
+                  <a href="${b.zoomMeetingUrl}" target="_blank" style="display:inline-block; background:#28a745; color:white; padding:5px 10px; text-decoration:none; font-weight:bold; border-radius:3px;">Join Zoom Meeting ↗</a>
+                </div>
+                <small><strong>Meeting Link:</strong> <a href="${b.zoomMeetingUrl}" target="_blank">${b.zoomMeetingUrl}</a></small><br>
+                <small><strong>Passcode:</strong> ${b.zoomPasscode || 'None'}</small>
+              </div>`;
+            } else if (b.paymentStatus === 'PAYMENT_VERIFIED') {
+              zoomHtml = '<span style="color: green;">Payment Verified! Awaiting Astrologer to set Zoom Link.</span>';
             }
 
-            let action = '-';
+            // Screenshot Upload Column
+            let uploadHtml = '';
             if (b.paymentStatus === 'PAYMENT_PENDING' || b.paymentStatus === 'PAYMENT_REJECTED') {
-              action = `<input type="file" id="file_${b._id}" style="width: 140px; font-size: 11px;"> <button onclick="uploadProof('${b._id}')">Submit Proof</button>`;
-            } else if (b.paymentStatus === 'PROOF_SUBMITTED' || b.paymentStatus === 'UNDER_VERIFICATION') {
-              action = 'Awaiting Astrologer Approval';
-            } else if (b.paymentStatus === 'PAYMENT_VERIFIED') {
-              action = 'Payment Approved';
+              const rejMsg = b.paymentRejectionReason ? `<div style="color:red; margin-bottom:4px;"><small>Rejected: ${b.paymentRejectionReason}</small></div>` : '';
+              uploadHtml = `${rejMsg}
+                <div style="font-size:12px; margin-bottom:4px;">Pay ₹${b.totalAmount} to UPI: <strong>${astroUpi}</strong></div>
+                <input type="file" id="file_${b._id}" accept="image/*" style="width: 200px; font-size: 11px; margin-bottom: 4px;"><br>
+                <input type="text" id="ref_${b._id}" placeholder="UTR / Transaction Ref" style="width: 150px; font-size: 11px; margin-bottom: 4px;"><br>
+                <button type="button" onclick="uploadProof('${b._id}')">Submit Screenshot</button>`;
+            } else {
+              const ssUrl = b.paymentScreenshot ? b.paymentScreenshot.url : '';
+              if (ssUrl) {
+                uploadHtml = `<div>
+                  <span style="color:green;">✓ Screenshot Submitted</span><br>
+                  <a href="${ssUrl}" target="_blank" style="font-size:12px;">View Uploaded Screenshot ↗</a>
+                </div>`;
+              } else {
+                uploadHtml = '<span>Verified</span>';
+              }
             }
 
             html += `<tr>
-              <td>${b.bookingId || b._id}</td>
-              <td>${astroName}</td>
-              <td>${b.consultationTopic}</td>
-              <td>${b.selectedDuration} mins</td>
-              <td>₹${b.totalAmount}</td>
-              <td>${b.bookingStatus} (${b.paymentStatus})</td>
-              <td>${zoomLink}</td>
-              <td>${action}</td>
+              <td><strong>${b.bookingId || b._id}</strong></td>
+              <td>${astroName}<br><small>UPI: ${astroUpi}</small></td>
+              <td>
+                ${b.consultationTopic}<br>
+                ${b.selectedDuration} mins | <strong>₹${b.totalAmount}</strong>
+              </td>
+              <td>
+                <strong>${b.paymentStatus}</strong><br>
+                <small>Booking: ${b.bookingStatus}</small>
+              </td>
+              <td>${zoomHtml}</td>
+              <td>${uploadHtml}</td>
             </tr>`;
           });
 
@@ -850,6 +1038,7 @@
 
     async function uploadProof(bookingId) {
       const fileInput = document.getElementById('file_' + bookingId);
+      const refInput = document.getElementById('ref_' + bookingId);
       if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
         alert('Please select a payment screenshot image first.');
         return;
@@ -857,6 +1046,9 @@
 
       const formData = new FormData();
       formData.append('screenshot', fileInput.files[0]);
+      if (refInput && refInput.value.trim()) {
+        formData.append('transactionRef', refInput.value.trim());
+      }
 
       try {
         const res = await fetch(`/api/bookings/${bookingId}/payment-proof`, {
@@ -868,7 +1060,7 @@
         });
         const data = await res.json();
         if (res.ok) {
-          showMsg('clientAlert', 'Payment screenshot uploaded successfully. Astrologer will verify.', true);
+          showMsg('clientAlert', 'Payment screenshot uploaded successfully! The astrologer can now inspect it and verify.', true);
           loadClientData();
         } else {
           showMsg('clientAlert', data.message || 'Upload failed.', false);
