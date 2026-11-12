@@ -11,14 +11,14 @@
       line-height: 1.5;
       color: #333;
     }
-    h1, h2, h3 {
+    h1, h2, h3, h4 {
       margin-bottom: 8px;
     }
     fieldset {
       margin-bottom: 20px;
       padding: 14px;
       border: 1px solid #ccc;
-      max-width: 900px;
+      max-width: 960px;
     }
     legend {
       font-weight: bold;
@@ -63,7 +63,7 @@
       background-color: #f2f2f2;
     }
     .top-bar {
-      max-width: 900px;
+      max-width: 960px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -75,7 +75,7 @@
     .status-msg {
       margin-top: 8px;
       padding: 8px;
-      max-width: 900px;
+      max-width: 960px;
       display: none;
       font-size: 13.5px;
     }
@@ -96,12 +96,37 @@
       margin-top: 6px;
       border: 1px solid #aaa;
     }
+    .qr-thumbnail {
+      width: 130px;
+      height: 130px;
+      display: block;
+      margin: 6px 0;
+      border: 1px solid #888;
+      background: #fff;
+    }
     .zoom-box {
       background: #eef7ff;
       border: 1px solid #b8daff;
       padding: 8px 10px;
       margin-top: 6px;
       border-radius: 4px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .stat-card {
+      border: 1px solid #ccc;
+      background: #fbfbfb;
+      padding: 10px;
+    }
+    .stat-card strong {
+      display: block;
+      font-size: 17px;
+      margin-top: 4px;
+      color: #111;
     }
     .dialog-overlay {
       display: none;
@@ -273,13 +298,13 @@
       <p><strong>Title:</strong> <span id="p_title">-</span></p>
       <p><strong>Experience:</strong> <span id="p_exp">-</span> years</p>
       <p><strong>Specializations:</strong> <span id="p_specs">-</span></p>
-      <p><strong>UPI ID:</strong> <span id="p_upi">-</span></p>
       <p><strong>Current Per-Minute Consultation Fee:</strong> ₹<span id="p_price">-</span> / minute</p>
+      <p><strong>Active Settlement UPI ID:</strong> <span id="p_upi">-</span></p>
     </fieldset>
 
     <!-- Pricing Management -->
     <fieldset>
-      <legend>Update Consultation Pricing</legend>
+      <legend>Update Consultation Fee</legend>
       <form onsubmit="handleUpdatePricing(event)">
         <div class="form-group">
           <label for="new_price">New Per-Minute Rate (₹):</label>
@@ -289,21 +314,86 @@
       </form>
     </fieldset>
 
-    <!-- UPI & Payment QR Settings -->
+    <!-- Payment QR & UPI Management -->
     <fieldset>
-      <legend>Update UPI Details</legend>
-      <form onsubmit="handleUpdateUpi(event)">
+      <legend>Payment Option: UPI &amp; QR Code Management</legend>
+      <p style="font-size:13px; color:#555; margin-bottom:12px;">
+        Clients pay consultations by scanning your QR code or copying your UPI ID. Any changes saved here are instantly reflected on client booking screens.
+      </p>
+
+      <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px dashed #ccc;">
+        <label>Current Active QR Code:</label>
+        <div id="current_qr_display" style="display:inline-block; vertical-align:top;">
+          <em>Loading QR...</em>
+        </div>
+      </div>
+
+      <form id="paymentOptionForm" onsubmit="handleSavePaymentOption(event)">
         <div class="form-group">
-          <label for="update_upi">UPI ID:</label>
-          <input type="text" id="update_upi" placeholder="astrologer@upi">
-          <button type="submit">Save UPI ID</button>
+          <label for="opt_upi_id">UPI ID *</label>
+          <input type="text" id="opt_upi_id" required placeholder="astrologer@okaxis">
+        </div>
+        <div class="form-group">
+          <label for="opt_upi_name">Beneficiary Name</label>
+          <input type="text" id="opt_upi_name" placeholder="Full name on bank account">
+        </div>
+        <div class="form-group">
+          <label for="opt_qr_file">Upload / Replace QR Image</label>
+          <input type="file" id="opt_qr_file" accept="image/*" style="width: 280px;">
+          <small style="display:block; color:#666; margin-left:195px;">Select JPG or PNG of your UPI QR code</small>
+        </div>
+        <div class="form-group">
+          <label for="opt_instructions">Payment Instructions</label>
+          <textarea id="opt_instructions" rows="2" style="width: 320px;" placeholder="e.g. Scan QR, complete payment, and enter your 12-digit UTR number below"></textarea>
+        </div>
+        <div>
+          <label></label>
+          <button type="submit" style="background:#0066cc; color:white; font-weight:bold;">Save Payment Settings &amp; QR Code</button>
         </div>
       </form>
     </fieldset>
 
-    <!-- Booking Requests -->
+    <!-- Earnings Summary & History -->
     <fieldset>
-      <legend>Consultation Bookings &amp; Payment Verifications</legend>
+      <legend>Consultation History &amp; Earnings Overview</legend>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <small>Total Verified Gross</small>
+          <strong id="stat_gross">₹0</strong>
+        </div>
+        <div class="stat-card">
+          <small>Net Earnings (90%)</small>
+          <strong id="stat_net" style="color:#1b7a44;">₹0</strong>
+        </div>
+        <div class="stat-card">
+          <small>Completed Consultations</small>
+          <strong id="stat_completed">0</strong>
+        </div>
+        <div class="stat-card">
+          <small>Scheduled Upcoming</small>
+          <strong id="stat_scheduled">0</strong>
+        </div>
+        <div class="stat-card">
+          <small>Pending Verification</small>
+          <strong id="stat_pending" style="color:#d9534f;">0</strong>
+        </div>
+      </div>
+
+      <h4>All Consultation History</h4>
+      <div style="margin-bottom: 8px;">
+        <button type="button" onclick="loadExecutiveData()">Refresh History</button>
+      </div>
+      <div id="execHistoryContainer">
+        <p>Loading history...</p>
+      </div>
+    </fieldset>
+
+    <!-- Incoming Bookings & Payment Verification -->
+    <fieldset>
+      <legend>Active Bookings &amp; Payment Verifications</legend>
+      <p style="font-size:12.5px; color:#666;">
+        Inspect client payment screenshots and verify them against your UPI app before generating Zoom consultations.
+      </p>
       <div style="margin-bottom: 10px;">
         <button type="button" onclick="loadExecutiveData()">Refresh Bookings</button>
       </div>
@@ -363,6 +453,18 @@
             <option value="">-- Choose an Astrologer --</option>
           </select>
         </div>
+
+        <!-- Astrologer Latest Payment Preview Info -->
+        <div id="astroPaymentPreview" style="margin-left: 195px; margin-bottom: 12px; display: none; padding: 10px; border: 1px solid #ddd; background: #fafafa; max-width: 400px;">
+          <div style="font-size: 13px; font-weight: bold; margin-bottom: 4px;">Astrologer Payment Details:</div>
+          <div style="font-size: 13px;">UPI ID: <strong id="prev_upi">-</strong></div>
+          <div id="prev_qr_wrap" style="margin-top: 6px; display: none;">
+            <span style="font-size: 12px; font-weight: bold;">Scan to Pay:</span><br>
+            <img id="prev_qr_img" src="" class="qr-thumbnail" alt="Astrologer QR">
+          </div>
+          <div id="prev_instr_wrap" style="font-size: 12px; color: #555; margin-top: 4px;"></div>
+        </div>
+
         <div class="form-group">
           <label for="book_topic">Consultation Topic *</label>
           <select id="book_topic" required>
@@ -404,7 +506,7 @@
 
     <!-- My Bookings -->
     <fieldset>
-      <legend>My Consultation Bookings</legend>
+      <legend>My Consultation Bookings &amp; Payment</legend>
       <div style="margin-bottom: 10px;">
         <button type="button" onclick="loadClientData()">Refresh My Bookings</button>
       </div>
@@ -617,7 +719,7 @@
     async function loadExecutiveData() {
       if (!currentToken) return;
 
-      // 1. Fetch Profile
+      // 1. Fetch Profile (UPI & QR)
       try {
         const pRes = await fetch('/api/executive/profile', {
           headers: { 'Authorization': 'Bearer ' + currentToken }
@@ -631,22 +733,58 @@
           document.getElementById('p_upi').innerText = prof.upiId || 'Not configured';
           document.getElementById('p_price').innerText = prof.pricePerMinute || 0;
           document.getElementById('new_price').value = prof.pricePerMinute || 20;
-          document.getElementById('update_upi').value = prof.upiId || '';
+
+          // Populate payment option form
+          document.getElementById('opt_upi_id').value = prof.upiId || '';
+          document.getElementById('opt_upi_name').value = prof.upiName || '';
+          document.getElementById('opt_instructions').value = prof.paymentInstructions || '';
+
+          // Display QR Code
+          const qrDisplay = document.getElementById('current_qr_display');
+          if (prof.qrCode && prof.qrCode.url) {
+            qrDisplay.innerHTML = `<div>
+              <img src="${prof.qrCode.url}" class="qr-thumbnail" alt="UPI QR Code">
+              <a href="${prof.qrCode.url}" target="_blank" style="font-size:12px;">Open Full QR ↗</a> | 
+              <button type="button" style="color:red; font-size:12px;" onclick="removePaymentQr()">Remove QR</button>
+            </div>`;
+          } else {
+            qrDisplay.innerHTML = '<em>No QR code uploaded yet. Please choose an image below.</em>';
+          }
         }
       } catch (e) {
         console.error('Failed to load executive profile:', e);
       }
 
-      // 2. Fetch Bookings
+      // 2. Fetch Earnings Summary
+      try {
+        const eRes = await fetch('/api/executive/earnings', {
+          headers: { 'Authorization': 'Bearer ' + currentToken }
+        });
+        const eData = await eRes.json();
+        if (eRes.ok && eData.stats) {
+          const st = eData.stats;
+          document.getElementById('stat_gross').innerText = '₹' + (st.totalVerifiedGross || 0);
+          document.getElementById('stat_net').innerText = '₹' + (st.netEarnings || 0);
+          document.getElementById('stat_completed').innerText = st.completedCount || 0;
+          document.getElementById('stat_scheduled').innerText = st.scheduledCount || 0;
+          document.getElementById('stat_pending').innerText = `${st.pendingVerificationCount || 0} (₹${st.pendingValue || 0})`;
+        }
+      } catch (e) {
+        console.error('Failed to load earnings stats:', e);
+      }
+
+      // 3. Fetch Bookings (Active & History)
       try {
         const bRes = await fetch('/api/executive/bookings', {
           headers: { 'Authorization': 'Bearer ' + currentToken }
         });
         const bData = await bRes.json();
-        const container = document.getElementById('execBookingsContainer');
+        const activeContainer = document.getElementById('execBookingsContainer');
+        const historyContainer = document.getElementById('execHistoryContainer');
 
         if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
-          let html = '<table><thead><tr>' +
+          // Table 1: Active Actionable Bookings
+          let activeHtml = '<table><thead><tr>' +
             '<th>Booking ID</th>' +
             '<th>Customer</th>' +
             '<th>Details</th>' +
@@ -654,12 +792,40 @@
             '<th>Payment Status</th>' +
             '<th>Actions</th>' +
             '</tr></thead><tbody>';
+
+          // Table 2: All Consultation History
+          let historyHtml = '<table><thead><tr>' +
+            '<th>Booking ID</th>' +
+            '<th>Customer</th>' +
+            '<th>Topic</th>' +
+            '<th>Amount</th>' +
+            '<th>Payment Status</th>' +
+            '<th>Booking Status</th>' +
+            '<th>Created At</th>' +
+            '<th>Verified At</th>' +
+            '</tr></thead><tbody>';
           
           bData.bookings.forEach(b => {
             const customerName = b.customerId ? b.customerId.name : 'Unknown';
             const customerPhone = b.customerId ? b.customerId.phone : '';
+            const createdAtDate = b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '-';
+            const verifiedAtDate = (b.paymentVerificationDetails && b.paymentVerificationDetails.verifiedAt) 
+              ? new Date(b.paymentVerificationDetails.verifiedAt).toLocaleString() 
+              : '-';
 
-            // Screenshot Proof Column
+            // Populate History Row
+            historyHtml += `<tr>
+              <td><strong>${b.bookingId || b._id}</strong></td>
+              <td>${customerName}<br><small>${customerPhone}</small></td>
+              <td>${b.consultationTopic} (${b.selectedDuration}m)</td>
+              <td>₹${b.totalAmount}</td>
+              <td><strong>${b.paymentStatus}</strong></td>
+              <td>${b.bookingStatus}</td>
+              <td>${createdAtDate}</td>
+              <td>${verifiedAtDate}</td>
+            </tr>`;
+
+            // Active Table Screenshot Column
             let screenshotHtml = '<em>No proof uploaded yet</em>';
             if (b.paymentScreenshot && b.paymentScreenshot.url) {
               const ssUrl = b.paymentScreenshot.url;
@@ -699,7 +865,7 @@
               actionHtml = '<span>-</span>';
             }
 
-            html += `<tr>
+            activeHtml += `<tr>
               <td><strong>${b.bookingId || b._id}</strong></td>
               <td>${customerName}<br><small>${customerPhone}</small></td>
               <td>
@@ -713,13 +879,18 @@
             </tr>`;
           });
 
-          html += '</tbody></table>';
-          container.innerHTML = html;
+          activeHtml += '</tbody></table>';
+          historyHtml += '</tbody></table>';
+
+          activeContainer.innerHTML = activeHtml;
+          historyContainer.innerHTML = historyHtml;
         } else {
-          container.innerHTML = '<p>No customer bookings received yet.</p>';
+          activeContainer.innerHTML = '<p>No customer bookings received yet.</p>';
+          historyContainer.innerHTML = '<p>No consultation history yet.</p>';
         }
       } catch (e) {
         document.getElementById('execBookingsContainer').innerHTML = '<p>Error loading bookings.</p>';
+        document.getElementById('execHistoryContainer').innerHTML = '<p>Error loading history.</p>';
       }
     }
 
@@ -727,6 +898,77 @@
       const img = document.getElementById('img_' + bookingId);
       if (!img) return;
       img.style.display = img.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Save Payment Option (UPI & QR)
+    async function handleSavePaymentOption(e) {
+      e.preventDefault();
+      const upiId = document.getElementById('opt_upi_id').value.trim();
+      const upiName = document.getElementById('opt_upi_name').value.trim();
+      const instructions = document.getElementById('opt_instructions').value.trim();
+      const qrFile = document.getElementById('opt_qr_file').files[0];
+
+      try {
+        let res;
+        if (qrFile) {
+          // Send multipart with file
+          const formData = new FormData();
+          formData.append('qrCode', qrFile);
+          formData.append('upiId', upiId);
+          formData.append('upiName', upiName);
+          formData.append('paymentInstructions', instructions);
+
+          res = await fetch('/api/executive/payment-qr', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + currentToken },
+            body: formData
+          });
+        } else {
+          // Send json update without changing image
+          res = await fetch('/api/executive/payment-info', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + currentToken
+            },
+            body: JSON.stringify({
+              upiId,
+              upiName,
+              paymentInstructions: instructions
+            })
+          });
+        }
+
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'Payment settings (UPI & QR Code) updated successfully! Clients will see this latest configuration.', true);
+          document.getElementById('opt_qr_file').value = '';
+          loadExecutiveData();
+        } else {
+          showMsg('execAlert', data.message || 'Failed to update payment settings.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
+    }
+
+    async function removePaymentQr() {
+      if (!confirm('Are you sure you want to remove your uploaded QR code?')) return;
+      try {
+        const res = await fetch('/api/executive/payment-qr', {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + currentToken }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMsg('execAlert', 'QR code removed.', true);
+          loadExecutiveData();
+        } else {
+          showMsg('execAlert', data.message || 'Failed to remove QR code.', false);
+        }
+      } catch (err) {
+        showMsg('execAlert', 'Error: ' + err.message, false);
+      }
     }
 
     async function handleUpdatePricing(e) {
@@ -747,30 +989,6 @@
           document.getElementById('p_price').innerText = rate;
         } else {
           showMsg('execAlert', data.message || 'Failed to update pricing.', false);
-        }
-      } catch (err) {
-        showMsg('execAlert', 'Error: ' + err.message, false);
-      }
-    }
-
-    async function handleUpdateUpi(e) {
-      e.preventDefault();
-      const upi = document.getElementById('update_upi').value.trim();
-      try {
-        const res = await fetch('/api/executive/payment-info', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + currentToken
-          },
-          body: JSON.stringify({ upiId: upi })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMsg('execAlert', 'UPI ID updated successfully.', true);
-          document.getElementById('p_upi').innerText = upi || 'Not configured';
-        } else {
-          showMsg('execAlert', data.message || 'Failed to update UPI details.', false);
         }
       } catch (err) {
         showMsg('execAlert', 'Error: ' + err.message, false);
@@ -887,7 +1105,7 @@
     async function loadClientData() {
       if (!currentToken) return;
 
-      // 1. Fetch public astrologers for dropdown
+      // 1. Fetch public astrologers for dropdown (with latest QR and UPI)
       try {
         const aRes = await fetch('/api/public/astrologers');
         const aData = await aRes.json();
@@ -904,7 +1122,7 @@
         console.error('Failed to load astrologers:', e);
       }
 
-      // 2. Fetch My Bookings
+      // 2. Fetch My Bookings (with astrologer latest UPI & QR)
       try {
         const bRes = await fetch('/api/bookings/my-bookings', {
           headers: { 'Authorization': 'Bearer ' + currentToken }
@@ -915,7 +1133,7 @@
         if (bRes.ok && bData.bookings && bData.bookings.length > 0) {
           let html = '<table><thead><tr>' +
             '<th>Booking ID</th>' +
-            '<th>Astrologer &amp; UPI</th>' +
+            '<th>Astrologer &amp; Payment Details</th>' +
             '<th>Topic &amp; Amount</th>' +
             '<th>Payment Status</th>' +
             '<th>Zoom Meeting Consultation</th>' +
@@ -924,7 +1142,24 @@
 
           bData.bookings.forEach(b => {
             const astroName = b.executiveId ? b.executiveId.name : 'Astrologer';
-            const astroUpi = (b.executiveProfile && b.executiveProfile.upiId) ? b.executiveProfile.upiId : 'Contact Astrologer';
+            const ep = b.executiveProfile || {};
+            const astroUpi = ep.upiId || 'Not set';
+            const astroQr = ep.qrCode ? ep.qrCode.url : '';
+            const astroInstr = ep.paymentInstructions || '';
+
+            // Astrologer payment details column (QR + UPI)
+            let astroPaymentCol = `<strong>${astroName}</strong><br>`;
+            astroPaymentCol += `UPI ID: <strong>${astroUpi}</strong><br>`;
+            if (astroQr) {
+              astroPaymentCol += `<div style="margin-top:4px;">
+                <span style="font-size:11.5px; font-weight:bold;">Latest QR Code:</span><br>
+                <img src="${astroQr}" class="qr-thumbnail" alt="Astrologer Payment QR">
+                <a href="${astroQr}" target="_blank" style="font-size:11px;">View Full QR ↗</a>
+              </div>`;
+            }
+            if (astroInstr) {
+              astroPaymentCol += `<small style="color:#555; display:block; margin-top:2px;">Note: ${astroInstr}</small>`;
+            }
 
             // Zoom column
             let zoomHtml = '<em>Not scheduled yet</em>';
@@ -947,7 +1182,7 @@
             if (b.paymentStatus === 'PAYMENT_PENDING' || b.paymentStatus === 'PAYMENT_REJECTED') {
               const rejMsg = b.paymentRejectionReason ? `<div style="color:red; margin-bottom:4px;"><small>Rejected: ${b.paymentRejectionReason}</small></div>` : '';
               uploadHtml = `${rejMsg}
-                <div style="font-size:12px; margin-bottom:4px;">Pay ₹${b.totalAmount} to UPI: <strong>${astroUpi}</strong></div>
+                <div style="font-size:12px; margin-bottom:4px;">Pay exact <strong>₹${b.totalAmount}</strong> to UPI above</div>
                 <input type="file" id="file_${b._id}" accept="image/*" style="width: 200px; font-size: 11px; margin-bottom: 4px;"><br>
                 <input type="text" id="ref_${b._id}" placeholder="UTR / Transaction Ref" style="width: 150px; font-size: 11px; margin-bottom: 4px;"><br>
                 <button type="button" onclick="uploadProof('${b._id}')">Submit Screenshot</button>`;
@@ -965,7 +1200,7 @@
 
             html += `<tr>
               <td><strong>${b.bookingId || b._id}</strong></td>
-              <td>${astroName}<br><small>UPI: ${astroUpi}</small></td>
+              <td>${astroPaymentCol}</td>
               <td>
                 ${b.consultationTopic}<br>
                 ${b.selectedDuration} mins | <strong>₹${b.totalAmount}</strong>
@@ -996,6 +1231,32 @@
       const rate = astro ? astro.pricePerMinute : 0;
       const total = rate * duration;
       document.getElementById('book_amount_display').innerText = total;
+
+      // Update payment preview box for selected astrologer
+      const previewBox = document.getElementById('astroPaymentPreview');
+      if (astro) {
+        previewBox.style.display = 'block';
+        document.getElementById('prev_upi').innerText = astro.upiId || 'Not specified';
+        
+        const qrWrap = document.getElementById('prev_qr_wrap');
+        const qrImg = document.getElementById('prev_qr_img');
+        if (astro.qrCodeUrl) {
+          qrImg.src = astro.qrCodeUrl;
+          qrWrap.style.display = 'block';
+        } else {
+          qrWrap.style.display = 'none';
+        }
+
+        const instrWrap = document.getElementById('prev_instr_wrap');
+        if (astro.paymentInstructions) {
+          instrWrap.innerText = 'Instructions: ' + astro.paymentInstructions;
+          instrWrap.style.display = 'block';
+        } else {
+          instrWrap.style.display = 'none';
+        }
+      } else {
+        previewBox.style.display = 'none';
+      }
     }
 
     async function handleCreateBooking(e) {

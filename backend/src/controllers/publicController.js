@@ -183,6 +183,8 @@ exports.getPublicAstrologers = async (req, res, next) => {
       availability: p.availability,
       upiId: p.upiId,
       hasQrCode: Boolean(p.qrCode?.url),
+      qrCodeUrl: p.qrCode?.url || '',
+      paymentInstructions: p.paymentInstructions || '',
     }));
 
     res.status(200).json({
