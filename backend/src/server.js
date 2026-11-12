@@ -25,13 +25,14 @@ connectDB();
 // Security and utility middlewares
 app.use(
   helmet({
+    contentSecurityPolicy: false, // allow local styles & scripts in browser explorer
     crossOriginResourcePolicy: false, // allow images served from /uploads to load in browser
   })
 );
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: '*',
     credentials: true,
   })
 );
@@ -45,6 +46,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Serve uploaded screenshots/QR codes statically with cross-origin access
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Serve static portal assets
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Root route - Interactive API & Account Testing Portal
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
