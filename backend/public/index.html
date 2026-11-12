@@ -3,794 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vedic Astrology Platform — Local API & Account Portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Backend Testing Portal - Astrologer Consultation API</title>
   <style>
-    :root {
-      --primary: #6b1d2f;
-      --primary-dark: #4d1320;
-      --gold: #c59b27;
-      --gold-light: #f5eedb;
-      --bg: #f9f7f4;
-      --card-bg: #ffffff;
-      --border: #e6dfd5;
-      --text: #231f20;
-      --text-muted: #6b635b;
-      --success: #1b7a44;
-      --success-bg: #eaf6ee;
-      --error: #a82424;
-      --error-bg: #fdf0f0;
-      --radius: 8px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-      padding: 24px 16px;
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #333;
     }
-
-    .container {
-      max-width: 1040px;
-      margin: 0 auto;
+    h1, h2, h3 {
+      margin-bottom: 10px;
     }
-
-    header {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--primary);
-      border-radius: var(--radius);
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-    }
-
-    .brand h1 {
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 24px;
-      color: var(--primary);
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand p {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .server-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--success-bg);
-      color: var(--success);
-      border: 1px solid #c2e2ce;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(27, 122, 68, 0.2);
-    }
-
-    /* Navigation tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
+    fieldset {
       margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 2px;
-      overflow-x: auto;
+      padding: 15px;
+      border: 1px solid #ccc;
+      max-width: 600px;
     }
-
-    .tab-btn {
-      background: transparent;
-      border: none;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      padding: 10px 18px;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -4px;
-      transition: all 0.2s ease;
-      white-space: nowrap;
+    legend {
+      font-weight: bold;
+      padding: 0 5px;
     }
-
-    .tab-btn:hover {
-      color: var(--primary);
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .tab-badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-      background: #f0ece6;
-      color: #555;
-    }
-
-    .active .tab-badge {
-      background: var(--gold-light);
-      color: #7b5805;
-    }
-
-    /* Layout grid */
-    .layout-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 24px;
-    }
-
-    @media (max-width: 860px) {
-      .layout-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    }
-
-    .card-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--primary-dark);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
-
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 520px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
     label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: #3b3530;
-      margin-bottom: 5px;
+      display: inline-block;
+      width: 180px;
+      vertical-align: top;
+      font-size: 14px;
     }
-
-    label span {
-      color: var(--error);
-    }
-
     input, select, textarea {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 13.5px;
-      font-family: inherit;
-      border: 1px solid #cfc7bc;
-      border-radius: 6px;
-      background: #fff;
-      color: var(--text);
-      transition: border 0.15s ease;
+      width: 320px;
+      padding: 6px;
+      font-size: 14px;
     }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(107, 29, 47, 0.1);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 64px;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .btn {
-      padding: 10px 18px;
-      font-size: 13.5px;
-      font-weight: 600;
-      border-radius: 6px;
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
       cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
+      margin-right: 8px;
     }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: #f5f2ed;
-      color: #443e38;
-      border-color: #d9d2c6;
-    }
-
-    .btn-secondary:hover {
-      background: #ebe5dc;
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-
-    /* Response viewer */
-    .response-card {
-      background: #1c1f24;
-      color: #e5e9f0;
-      border-radius: var(--radius);
-      padding: 16px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 12px;
-      line-height: 1.5;
-      overflow-x: auto;
-      max-height: 520px;
-    }
-
-    .response-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #333942;
-    }
-
-    .response-status {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .status-200, .status-201 {
-      color: #7ee787;
-    }
-
-    .status-400, .status-401, .status-404, .status-500 {
-      color: #ff7b72;
-    }
-
-    /* Seeded accounts helper */
-    .demo-accounts {
-      margin-bottom: 16px;
-      padding: 12px;
-      background: var(--gold-light);
-      border: 1px solid #e5d7af;
-      border-radius: 6px;
-      font-size: 12.5px;
-    }
-
-    .demo-accounts p {
-      font-weight: 600;
-      color: #634700;
-      margin-bottom: 8px;
-    }
-
-    .demo-btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    /* Endpoints section */
-    .endpoint-item {
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 10px;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .endpoint-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .method-tag {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 7px;
-      border-radius: 4px;
-      font-family: monospace;
-    }
-
-    .method-get {
-      background: #e6f4ea;
-      color: #137333;
-    }
-
-    .method-post {
-      background: #e8f0fe;
-      color: #1a73e8;
-    }
-
-    .method-put {
-      background: #fef7e0;
-      color: #b06000;
-    }
-
-    .endpoint-path {
-      font-family: monospace;
-      font-size: 13px;
-      color: #222;
-      font-weight: 600;
-    }
-
-    .endpoint-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .tab-pane {
+    .status-msg {
+      margin-top: 10px;
+      padding: 10px;
+      max-width: 600px;
       display: none;
+      font-size: 14px;
     }
-
-    .tab-pane.active {
-      display: block;
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
     }
-
-    footer {
-      margin-top: 32px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 12.5px;
-      color: var(--text-muted);
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Header -->
-    <header>
-      <div class="brand">
-        <h1><span>🕉️</span> Vedic Jyotish Consultation Platform</h1>
-        <p>Standalone Local REST API &amp; Account Portal &bull; Manual UPI &amp; Zoom Consultation Engine</p>
+  <h1>Astrology Consultation Platform — Backend API Tester</h1>
+  <p>Status: <strong>Backend Running on Port 5001 (MongoDB Connected)</strong></p>
+
+  <hr>
+
+  <!-- Section 1: Executive Astrologer Signup -->
+  <fieldset>
+    <legend>Executive Astrologer Signup</legend>
+    <form id="execSignupForm" onsubmit="submitExecSignup(event)">
+      <div class="form-group">
+        <label for="exec_name">Full Name *</label>
+        <input type="text" id="exec_name" required placeholder="Pt. Rameshwar Shastri">
+      </div>
+      <div class="form-group">
+        <label for="exec_email">Email Address *</label>
+        <input type="email" id="exec_email" required placeholder="astrologer@example.com">
+      </div>
+      <div class="form-group">
+        <label for="exec_password">Password *</label>
+        <input type="password" id="exec_password" required placeholder="Min 6 characters">
+      </div>
+      <div class="form-group">
+        <label for="exec_phone">Phone Number *</label>
+        <input type="tel" id="exec_phone" required placeholder="+91 9876543210">
+      </div>
+      <div class="form-group">
+        <label for="exec_title">Title</label>
+        <input type="text" id="exec_title" placeholder="Acharya / Vedic Astrologer">
+      </div>
+      <div class="form-group">
+        <label for="exec_price">Price Per Minute (₹) *</label>
+        <input type="number" id="exec_price" value="25" min="1" required>
+      </div>
+      <div class="form-group">
+        <label for="exec_exp">Experience (Years)</label>
+        <input type="number" id="exec_exp" value="10" min="0">
+      </div>
+      <div class="form-group">
+        <label for="exec_upi">UPI ID</label>
+        <input type="text" id="exec_upi" placeholder="astrologer@okhdfcbank">
+      </div>
+      <div class="form-group">
+        <label for="exec_specs">Specializations</label>
+        <input type="text" id="exec_specs" placeholder="Kundli Analysis, Career, Marriage">
       </div>
       <div>
-        <span class="server-status" id="serverStatusBadge">
-          <span class="status-dot"></span>
-          <span id="serverStatusText">Backend Online (Port 5001)</span>
-        </span>
+        <label></label>
+        <button type="submit">Sign Up as Executive</button>
+        <button type="button" onclick="fillDemoExec()">Fill Sample Data</button>
       </div>
-    </header>
+    </form>
+    <div id="execMsg" class="status-msg"></div>
+  </fieldset>
 
-    <!-- Navigation Tabs -->
-    <nav class="tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-exec')">
-        Executive Astrologer Signup <span class="tab-badge">POST</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('tab-user')">
-        Client (Customer) Signup <span class="tab-badge">POST</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('tab-login')">
-        Account Login <span class="tab-badge">Auth</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('tab-endpoints')">
-        Public Endpoints <span class="tab-badge">GET</span>
-      </button>
-    </nav>
+  <!-- Section 2: Normal User (Client) Signup -->
+  <fieldset>
+    <legend>Normal User (Client) Signup</legend>
+    <form id="userSignupForm" onsubmit="submitUserSignup(event)">
+      <div class="form-group">
+        <label for="user_name">Full Name *</label>
+        <input type="text" id="user_name" required placeholder="Amit Sharma">
+      </div>
+      <div class="form-group">
+        <label for="user_email">Email Address *</label>
+        <input type="email" id="user_email" required placeholder="client@example.com">
+      </div>
+      <div class="form-group">
+        <label for="user_password">Password *</label>
+        <input type="password" id="user_password" required placeholder="Min 6 characters">
+      </div>
+      <div class="form-group">
+        <label for="user_phone">Phone Number *</label>
+        <input type="tel" id="user_phone" required placeholder="+91 9123456780">
+      </div>
+      <div class="form-group">
+        <label for="user_dob">Date of Birth</label>
+        <input type="date" id="user_dob">
+      </div>
+      <div class="form-group">
+        <label for="user_pob">Place of Birth</label>
+        <input type="text" id="user_pob" placeholder="e.g. New Delhi">
+      </div>
+      <div class="form-group">
+        <label for="user_gender">Gender</label>
+        <select id="user_gender">
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label></label>
+        <button type="submit">Sign Up as Client</button>
+        <button type="button" onclick="fillDemoUser()">Fill Sample Data</button>
+      </div>
+    </form>
+    <div id="userMsg" class="status-msg"></div>
+  </fieldset>
 
-    <!-- Content Area -->
-    <div class="layout-grid">
-      <!-- Left Column: Forms -->
-      <main>
-        <!-- TAB 1: EXECUTIVE SIGNUP -->
-        <section id="tab-exec" class="tab-pane active">
-          <div class="card">
-            <div class="card-title">
-              <span>Executive Astrologer Registration</span>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="prefillExecutive()">Pre-fill Example</button>
-            </div>
-            <p class="card-desc">Registers an astrologer with independent per-minute pricing, UPI settlement ID, and professional qualifications. Handled by <code>POST /api/auth/executive/register</code>.</p>
+  <!-- Section 3: Login Test -->
+  <fieldset>
+    <legend>Login Test</legend>
+    <form id="loginForm" onsubmit="submitLogin(event)">
+      <div class="form-group">
+        <label for="login_role">Role</label>
+        <select id="login_role">
+          <option value="EXECUTIVE">Executive (Astrologer)</option>
+          <option value="NORMAL_USER">Normal User (Client)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="login_email">Email</label>
+        <input type="email" id="login_email" required placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label for="login_password">Password</label>
+        <input type="password" id="login_password" required placeholder="Password">
+      </div>
+      <div>
+        <label></label>
+        <button type="submit">Login</button>
+        <button type="button" onclick="setLogin('executive1@example.com', 'Password123!', 'EXECUTIVE')">Demo Astrologer</button>
+        <button type="button" onclick="setLogin('user1@example.com', 'Password123!', 'NORMAL_USER')">Demo Client</button>
+      </div>
+    </form>
+    <div id="loginMsg" class="status-msg"></div>
+  </fieldset>
 
-            <form id="execRegisterForm" onsubmit="handleExecutiveRegister(event)">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Full Name <span>*</span></label>
-                  <input type="text" id="exec_name" required placeholder="e.g. Acharya Devrat Shastri">
-                </div>
-                <div class="form-group">
-                  <label>Email Address <span>*</span></label>
-                  <input type="email" id="exec_email" required placeholder="astrologer@example.com">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Password (min 6 chars) <span>*</span></label>
-                  <input type="password" id="exec_password" required placeholder="Password123!">
-                </div>
-                <div class="form-group">
-                  <label>Mobile Number <span>*</span></label>
-                  <input type="tel" id="exec_phone" required placeholder="+91 98765 43210">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Professional Title</label>
-                  <input type="text" id="exec_title" placeholder="Acharya / Vedic Jyotishacharya">
-                </div>
-                <div class="form-group">
-                  <label>Per-Minute Consultation Fee (₹) <span>*</span></label>
-                  <input type="number" id="exec_price" min="1" value="25" required placeholder="e.g. 25">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Years of Experience</label>
-                  <input type="number" id="exec_exp" min="0" value="12" placeholder="e.g. 12">
-                </div>
-                <div class="form-group">
-                  <label>UPI ID (for Direct Client Payment)</label>
-                  <input type="text" id="exec_upi" placeholder="astrologer@okhdfcbank">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Specializations (comma separated)</label>
-                <input type="text" id="exec_specs" placeholder="Kundli Analysis, Career Guidance, Marriage Matchmaking, Vastu">
-              </div>
-
-              <div class="form-group">
-                <label>Biography &amp; Consultation Philosophy</label>
-                <textarea id="exec_bio" rows="2" placeholder="Dedicated Vedic scholar with extensive experience in Parashari Jyotish..."></textarea>
-              </div>
-
-              <div class="btn-row">
-                <button type="submit" class="btn btn-primary">Register Astrologer Account</button>
-                <button type="reset" class="btn btn-secondary">Reset Form</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <!-- TAB 2: CLIENT SIGNUP -->
-        <section id="tab-user" class="tab-pane">
-          <div class="card">
-            <div class="card-title">
-              <span>Customer / Client Registration</span>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="prefillUser()">Pre-fill Example</button>
-            </div>
-            <p class="card-desc">Registers a client looking to book consultations and submit UPI payments. Handled by <code>POST /api/auth/user/register</code>.</p>
-
-            <form id="userRegisterForm" onsubmit="handleUserRegister(event)">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Full Name <span>*</span></label>
-                  <input type="text" id="user_name" required placeholder="e.g. Rohan Sharma">
-                </div>
-                <div class="form-group">
-                  <label>Email Address <span>*</span></label>
-                  <input type="email" id="user_email" required placeholder="client@example.com">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Password (min 6 chars) <span>*</span></label>
-                  <input type="password" id="user_password" required placeholder="Password123!">
-                </div>
-                <div class="form-group">
-                  <label>Mobile Number <span>*</span></label>
-                  <input type="tel" id="user_phone" required placeholder="+91 91234 56789">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Date of Birth</label>
-                  <input type="date" id="user_dob">
-                </div>
-                <div class="form-group">
-                  <label>Time of Birth</label>
-                  <input type="time" id="user_tob">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Place of Birth</label>
-                  <input type="text" id="user_pob" placeholder="e.g. Varanasi, Uttar Pradesh">
-                </div>
-                <div class="form-group">
-                  <label>Gender</label>
-                  <select id="user_gender">
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="btn-row">
-                <button type="submit" class="btn btn-primary">Register Client Account</button>
-                <button type="reset" class="btn btn-secondary">Reset Form</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <!-- TAB 3: UNIFIED LOGIN -->
-        <section id="tab-login" class="tab-pane">
-          <div class="card">
-            <div class="card-title">
-              <span>Account Login</span>
-            </div>
-            <p class="card-desc">Authenticate as an Executive Astrologer or Client to obtain a JWT bearer token. <code>POST /api/auth/executive/login</code> or <code>/user/login</code>.</p>
-
-            <div class="demo-accounts">
-              <p>Quick 1-Click Pre-seeded Test Accounts:</p>
-              <div class="demo-btn-group">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="fillLogin('executive1@example.com', 'Password123!', 'EXECUTIVE')">Acharya Devrat (Astrologer - ₹25/m)</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="fillLogin('executive2@example.com', 'Password123!', 'EXECUTIVE')">Dr. Priya Shastri (Astrologer - ₹30/m)</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="fillLogin('user1@example.com', 'Password123!', 'NORMAL_USER')">Rohan Sharma (Client)</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="fillLogin('user2@example.com', 'Password123!', 'NORMAL_USER')">Ananya Verma (Client)</button>
-              </div>
-            </div>
-
-            <form id="loginForm" onsubmit="handleLogin(event)">
-              <div class="form-group">
-                <label>Login As Role <span>*</span></label>
-                <select id="login_role">
-                  <option value="EXECUTIVE">Executive Astrologer (/api/auth/executive/login)</option>
-                  <option value="NORMAL_USER">Customer / Client (/api/auth/user/login)</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Email Address <span>*</span></label>
-                <input type="email" id="login_email" required placeholder="email@example.com">
-              </div>
-
-              <div class="form-group">
-                <label>Password <span>*</span></label>
-                <input type="password" id="login_password" required placeholder="••••••••">
-              </div>
-
-              <div class="btn-row">
-                <button type="submit" class="btn btn-primary">Sign In &amp; Acquire Token</button>
-                <button type="button" class="btn btn-secondary" onclick="checkCurrentAuth()">Verify Stored Token (/me)</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <!-- TAB 4: PUBLIC ENDPOINTS DIRECTORY -->
-        <section id="tab-endpoints" class="tab-pane">
-          <div class="card">
-            <div class="card-title">
-              <span>Public Directory &amp; Inspection Endpoints</span>
-            </div>
-            <p class="card-desc">Direct links to test the backend API responses in browser or fetch below.</p>
-
-            <div class="endpoint-item">
-              <div>
-                <div class="endpoint-meta">
-                  <span class="method-tag method-get">GET</span>
-                  <span class="endpoint-path">/api/health</span>
-                </div>
-                <div class="endpoint-desc">Backend system health and server timestamp check.</div>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <button class="btn btn-secondary btn-sm" onclick="fetchEndpoint('/api/health')">Fetch</button>
-                <a href="/api/health" target="_blank" class="btn btn-secondary btn-sm">Open ↗</a>
-              </div>
-            </div>
-
-            <div class="endpoint-item">
-              <div>
-                <div class="endpoint-meta">
-                  <span class="method-tag method-get">GET</span>
-                  <span class="endpoint-path">/api/public/astrologers</span>
-                </div>
-                <div class="endpoint-desc">Lists all active astrologers, per-minute fees, UPI IDs, and specializations.</div>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <button class="btn btn-secondary btn-sm" onclick="fetchEndpoint('/api/public/astrologers')">Fetch</button>
-                <a href="/api/public/astrologers" target="_blank" class="btn btn-secondary btn-sm">Open ↗</a>
-              </div>
-            </div>
-
-            <div class="endpoint-item">
-              <div>
-                <div class="endpoint-meta">
-                  <span class="method-tag method-get">GET</span>
-                  <span class="endpoint-path">/api/public/services</span>
-                </div>
-                <div class="endpoint-desc">Supported Vedic consultation services and descriptions.</div>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <button class="btn btn-secondary btn-sm" onclick="fetchEndpoint('/api/public/services')">Fetch</button>
-                <a href="/api/public/services" target="_blank" class="btn btn-secondary btn-sm">Open ↗</a>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <!-- Right Column: Live API Response Viewer -->
-      <aside>
-        <div class="card" style="padding: 18px;">
-          <div class="response-header">
-            <div>
-              <strong style="font-size: 13px;">API Response Inspector</strong>
-            </div>
-            <span id="responseStatus" class="response-status status-200">IDLE</span>
-          </div>
-
-          <div style="margin-bottom: 10px; font-size: 11.5px; color: var(--text-muted); display: flex; justify-content: space-between;">
-            <span id="responseEndpoint">Ready for requests</span>
-            <span id="responseTimer">0ms</span>
-          </div>
-
-          <pre id="responseJson" class="response-card">// Submit any form on the left or click "Fetch" to inspect live API output here.
-{
-  "service": "Astrology Consultation Platform",
-  "status": "ready",
-  "localUrl": "http://localhost:5001"
-}</pre>
-
-          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px;">
-            <div style="font-weight: 600; margin-bottom: 4px;">Active Session Token:</div>
-            <div id="tokenPreview" style="font-family: monospace; font-size: 11px; word-break: break-all; color: var(--text-muted); background: #f5f2ed; padding: 6px; border-radius: 4px;">
-              No token stored yet (Sign up or Login to populate)
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-
-    <footer>
-      Vedic Astrology Consultation Backend Platform &bull; Node.js / Express / MongoDB &bull; Running locally on <code>http://localhost:5001</code>
-    </footer>
-  </div>
+  <!-- Section 4: Public Endpoints -->
+  <fieldset>
+    <legend>Direct API Endpoints</legend>
+    <ul>
+      <li><a href="/api/health" target="_blank">Health Check (/api/health)</a></li>
+      <li><a href="/api/public/astrologers" target="_blank">Public Astrologers List (/api/public/astrologers)</a></li>
+      <li><a href="/api/public/services" target="_blank">Consultation Services List (/api/public/services)</a></li>
+    </ul>
+  </fieldset>
 
   <script>
-    let activeToken = localStorage.getItem('strologer_token') || '';
-    if (activeToken) {
-      document.getElementById('tokenPreview').innerText = activeToken;
+    function showMessage(elementId, text, isSuccess) {
+      const el = document.getElementById(elementId);
+      el.className = 'status-msg ' + (isSuccess ? 'success' : 'error');
+      el.innerText = text;
+      el.style.display = 'block';
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
-      const pane = document.getElementById(tabId);
-      if (pane) pane.classList.add('active');
-
-      const btn = event ? event.currentTarget : null;
-      if (btn) btn.classList.add('active');
-    }
-
-    function updateInspector(endpoint, status, duration, data) {
-      const statusEl = document.getElementById('responseStatus');
-      statusEl.className = 'response-status status-' + (status >= 200 && status < 300 ? '200' : '400');
-      statusEl.innerText = `${status} ${status >= 200 && status < 300 ? 'SUCCESS' : 'ERROR'}`;
-
-      document.getElementById('responseEndpoint').innerText = endpoint;
-      document.getElementById('responseTimer').innerText = `${duration}ms`;
-      document.getElementById('responseJson').innerText = JSON.stringify(data, null, 2);
-
-      if (data && data.token) {
-        activeToken = data.token;
-        localStorage.setItem('strologer_token', activeToken);
-        document.getElementById('tokenPreview').innerText = activeToken;
-      }
-    }
-
-    // Prefill helpers
-    function prefillExecutive() {
-      const rand = Math.floor(Math.random() * 900) + 100;
-      document.getElementById('exec_name').value = `Pt. Rajesh Shastri ${rand}`;
-      document.getElementById('exec_email').value = `rajesh${rand}@example.com`;
+    function fillDemoExec() {
+      const rand = Math.floor(Math.random() * 899) + 100;
+      document.getElementById('exec_name').value = 'Acharya Shastri ' + rand;
+      document.getElementById('exec_email').value = 'shastri' + rand + '@example.com';
       document.getElementById('exec_password').value = 'Password123!';
-      document.getElementById('exec_phone').value = `+91 98${rand}12345`;
-      document.getElementById('exec_title').value = 'Jyotish Shiromani';
-      document.getElementById('exec_price').value = '35';
-      document.getElementById('exec_exp').value = '15';
-      document.getElementById('exec_upi').value = `rajesh${rand}@okaxis`;
-      document.getElementById('exec_specs').value = 'Kundli Analysis, Career Guidance, Gemstone Consultation';
-      document.getElementById('exec_bio').value = 'Gold medalist in Vedic Jyotish with 15+ years experience resolving complex life questions through Prashna Shastra and Dasha analysis.';
+      document.getElementById('exec_phone').value = '+91 98' + rand + '54321';
+      document.getElementById('exec_title').value = 'Vedic Astrologer';
+      document.getElementById('exec_price').value = '25';
+      document.getElementById('exec_exp').value = '8';
+      document.getElementById('exec_upi').value = 'shastri' + rand + '@upi';
+      document.getElementById('exec_specs').value = 'Kundli, Career, Marriage';
     }
 
-    function prefillUser() {
-      const rand = Math.floor(Math.random() * 900) + 100;
-      document.getElementById('user_name').value = `Amit Kumar ${rand}`;
-      document.getElementById('user_email').value = `amit${rand}@example.com`;
+    function fillDemoUser() {
+      const rand = Math.floor(Math.random() * 899) + 100;
+      document.getElementById('user_name').value = 'Customer ' + rand;
+      document.getElementById('user_email').value = 'customer' + rand + '@example.com';
       document.getElementById('user_password').value = 'Password123!';
-      document.getElementById('user_phone').value = `+91 97${rand}54321`;
-      document.getElementById('user_dob').value = '1995-08-15';
-      document.getElementById('user_tob').value = '09:45';
-      document.getElementById('user_pob').value = 'New Delhi';
+      document.getElementById('user_phone').value = '+91 97' + rand + '12345';
+      document.getElementById('user_dob').value = '1996-05-20';
+      document.getElementById('user_pob').value = 'Delhi';
       document.getElementById('user_gender').value = 'male';
     }
 
-    function fillLogin(email, password, role) {
+    function setLogin(email, password, role) {
       document.getElementById('login_email').value = email;
       document.getElementById('login_password').value = password;
       document.getElementById('login_role').value = role;
     }
 
-    // Executive Register
-    async function handleExecutiveRegister(e) {
+    async function submitExecSignup(e) {
       e.preventDefault();
-      const start = Date.now();
-      const payload = {
+      const el = document.getElementById('execMsg');
+      el.style.display = 'none';
+
+      const body = {
         name: document.getElementById('exec_name').value,
         email: document.getElementById('exec_email').value,
         password: document.getElementById('exec_password').value,
@@ -799,116 +260,86 @@
         pricePerMinute: Number(document.getElementById('exec_price').value),
         experience: Number(document.getElementById('exec_exp').value),
         upiId: document.getElementById('exec_upi').value,
-        specializations: document.getElementById('exec_specs').value.split(',').map(s => s.trim()).filter(Boolean),
-        biography: document.getElementById('exec_bio').value,
+        specializations: document.getElementById('exec_specs').value.split(',').map(s => s.trim()).filter(Boolean)
       };
 
       try {
         const res = await fetch('/api/auth/executive/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(body)
         });
         const data = await res.json();
-        updateInspector('POST /api/auth/executive/register', res.status, Date.now() - start, data);
+        if (res.ok) {
+          showMessage('execMsg', 'Success: ' + data.message + ' (User ID: ' + data.user.id + ', Role: ' + data.user.role + ')', true);
+        } else {
+          showMessage('execMsg', 'Error: ' + (data.message || 'Registration failed'), false);
+        }
       } catch (err) {
-        updateInspector('POST /api/auth/executive/register', 500, Date.now() - start, { error: err.message });
+        showMessage('execMsg', 'Network Error: ' + err.message, false);
       }
     }
 
-    // Customer Register
-    async function handleUserRegister(e) {
+    async function submitUserSignup(e) {
       e.preventDefault();
-      const start = Date.now();
-      const payload = {
+      const el = document.getElementById('userMsg');
+      el.style.display = 'none';
+
+      const body = {
         name: document.getElementById('user_name').value,
         email: document.getElementById('user_email').value,
         password: document.getElementById('user_password').value,
         phone: document.getElementById('user_phone').value,
         dateOfBirth: document.getElementById('user_dob').value,
-        timeOfBirth: document.getElementById('user_tob').value,
         placeOfBirth: document.getElementById('user_pob').value,
-        gender: document.getElementById('user_gender').value,
+        gender: document.getElementById('user_gender').value
       };
 
       try {
         const res = await fetch('/api/auth/user/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(body)
         });
         const data = await res.json();
-        updateInspector('POST /api/auth/user/register', res.status, Date.now() - start, data);
+        if (res.ok) {
+          showMessage('userMsg', 'Success: ' + data.message + ' (User ID: ' + data.user.id + ', Role: ' + data.user.role + ')', true);
+        } else {
+          showMessage('userMsg', 'Error: ' + (data.message || 'Registration failed'), false);
+        }
       } catch (err) {
-        updateInspector('POST /api/auth/user/register', 500, Date.now() - start, { error: err.message });
+        showMessage('userMsg', 'Network Error: ' + err.message, false);
       }
     }
 
-    // Login
-    async function handleLogin(e) {
+    async function submitLogin(e) {
       e.preventDefault();
-      const start = Date.now();
+      const el = document.getElementById('loginMsg');
+      el.style.display = 'none';
+
       const role = document.getElementById('login_role').value;
       const endpoint = role === 'EXECUTIVE' ? '/api/auth/executive/login' : '/api/auth/user/login';
-      const payload = {
+      const body = {
         email: document.getElementById('login_email').value,
-        password: document.getElementById('login_password').value,
+        password: document.getElementById('login_password').value
       };
 
       try {
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(body)
         });
         const data = await res.json();
-        updateInspector(`POST ${endpoint}`, res.status, Date.now() - start, data);
-      } catch (err) {
-        updateInspector(`POST ${endpoint}`, 500, Date.now() - start, { error: err.message });
-      }
-    }
-
-    // Verify /me
-    async function checkCurrentAuth() {
-      if (!activeToken) {
-        alert('No token stored. Please sign in or register first.');
-        return;
-      }
-      const start = Date.now();
-      try {
-        const res = await fetch('/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${activeToken}` }
-        });
-        const data = await res.json();
-        updateInspector('GET /api/auth/me', res.status, Date.now() - start, data);
-      } catch (err) {
-        updateInspector('GET /api/auth/me', 500, Date.now() - start, { error: err.message });
-      }
-    }
-
-    // Fetch Endpoint
-    async function fetchEndpoint(endpoint) {
-      const start = Date.now();
-      try {
-        const res = await fetch(endpoint);
-        const data = await res.json();
-        updateInspector(`GET ${endpoint}`, res.status, Date.now() - start, data);
-      } catch (err) {
-        updateInspector(`GET ${endpoint}`, 500, Date.now() - start, { error: err.message });
-      }
-    }
-
-    // Check health on load
-    fetch('/api/health')
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'healthy') {
-          document.getElementById('serverStatusText').innerText = 'Backend Online (Port 5001)';
+        if (res.ok) {
+          showMessage('loginMsg', 'Success: Logged in successfully as ' + data.user.name + ' (' + data.user.role + ')', true);
+        } else {
+          showMessage('loginMsg', 'Error: ' + (data.message || 'Login failed'), false);
         }
-      })
-      .catch(() => {
-        document.getElementById('serverStatusText').innerText = 'Connecting to Server...';
-      });
+      } catch (err) {
+        showMessage('loginMsg', 'Network Error: ' + err.message, false);
+      }
+    }
   </script>
 </body>
 </html>
