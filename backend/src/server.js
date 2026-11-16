@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -52,7 +53,11 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Root route - Interactive API & Account Testing Portal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  const p1 = path.join(__dirname, '../public/index.html');
+  if (fs.existsSync(p1)) return res.sendFile(p1);
+  const p2 = path.join(process.cwd(), 'backend/public/index.html');
+  if (fs.existsSync(p2)) return res.sendFile(p2);
+  res.sendFile(path.resolve('backend/public/index.html'));
 });
 
 // Health check
