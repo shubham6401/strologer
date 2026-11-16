@@ -1,17 +1,17 @@
 services:
   - type: web
-    name: strologer-api
+    name: strologer-platform
     env: node
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: node backend/src/server.js
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 5001
+        value: 10000
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://shubham6401:%40Shubham123@cluster0.dwx0kqn.mongodb.net/strologer_db?retryWrites=true&w=majority
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN

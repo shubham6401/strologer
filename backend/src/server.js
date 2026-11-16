@@ -81,12 +81,18 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 
-const server = app.listen(PORT, () => {
-  console.log(`[Astrology Backend Server] running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+let server;
+if (require.main === module || !process.env.VERCEL) {
+  server = app.listen(PORT, () => {
+    console.log(`[Astrology Backend Server] running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
 
-process.on('unhandledRejection', (err) => {
-  console.error('[Unhandled Rejection]:', err.message);
-  server.close(() => process.exit(1));
-});
+  process.on('unhandledRejection', (err) => {
+    console.error('[Unhandled Rejection]:', err.message);
+    if (server) server.close(() => process.exit(1));
+  });
+}
+
+module.exports = app;
+
 
