@@ -1,0 +1,23 @@
+{
+  "name": "strologer-platform",
+  "version": "1.0.0",
+  "description": "Vedic Astrology Consultation & Booking Platform Backend API",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "build": "cd backend && npm install",
+    "seed": "node backend/src/utils/seedData.js",
+    "test": "node backend/test-suite.js"
+  },
+  "keywords": [
+    "astrology",
+    "booking",
+    "upi",
+    "zoom",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "shubham6401",
+  "license": "ISC"
+}
