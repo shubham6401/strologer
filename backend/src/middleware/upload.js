@@ -61,18 +61,38 @@ const uploadToStorage = async (file, folder = 'astrology') => {
     });
   }
 
-  // Fallback: Local disk storage
-  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-  const ext = path.extname(file.originalname).toLowerCase() || '.png';
-  const filename = `${folder}-${uniqueSuffix}${ext}`;
-  const filepath = path.join(uploadsDir, filename);
+  // If running on Vercel or Serverless (read-only filesystem), store as self-contained Base64 Data URI
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const mime = file.mimetype || 'image/png';
+    const base64Data = file.buffer.toString('base64');
+    return {
+      url: `data:${mime};base64,${base64Data}`,
+      publicId: `${folder}-${Date.now()}`,
+    };
+  }
 
-  fs.writeFileSync(filepath, file.buffer);
+  // Fallback: Local disk storage (or data URI if disk is read-only)
+  try {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname).toLowerCase() || '.png';
+    const filename = `${folder}-${uniqueSuffix}${ext}`;
+    const filepath = path.join(uploadsDir, filename);
 
-  return {
-    url: `/uploads/${filename}`,
-    publicId: filename,
-  };
+    fs.writeFileSync(filepath, file.buffer);
+
+    return {
+      url: `/uploads/${filename}`,
+      publicId: filename,
+    };
+  } catch (diskErr) {
+    console.warn('[Storage] Disk write failed, falling back to Base64 Data URI:', diskErr.message);
+    const mime = file.mimetype || 'image/png';
+    const base64Data = file.buffer.toString('base64');
+    return {
+      url: `data:${mime};base64,${base64Data}`,
+      publicId: `${folder}-${Date.now()}`,
+    };
+  }
 };
 
 module.exports = {
